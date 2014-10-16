@@ -1,0 +1,216 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>关于git中remote branch的总结 | ioser</title>
+  <meta name="author" content="yaozhuoyu">
+  
+  <meta name="description" content="yaozhuoyu’s Blog for iOS">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="关于git中remote branch的总结"/>
+  <meta property="og:site_name" content="ioser"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="ioser" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">ioser</a></h1>
+  <h2><a href="/">记录iOS点点滴滴</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-10-23T09:31:00.000Z"><a href="/2013/10/23/guan-yu-gitzhong-remote-branchde-zong-jie/">2013-10-23</a></time>
+      
+      
+  
+    <h1 class="title">关于git中remote branch的总结</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>这是一篇关于git remote branch的总结，其中讲述了和remote branch相关的内容，包括创建，删除等等。<br><a id="more"></a></p>
+<h2 id="1-什么是远程分支">1.什么是远程分支</h2>
+<p>远程分支（remote branch）是对远程仓库中的分支的索引。它们是一些无法移动的本地分支；只有在 Git 进行网络交互时才会更新。远程分支就像是书签，提醒着你上次连接远程仓库时上面各分支的位置。一般我们使用<code>(远程仓库名)/(分支名)</code> 这样的形式表示远程分支。更多的概念不如例子直接，下面还主要按例子来讲述。<br>下面以github上面的AFNetworking库为例子，首先到网址 <a href="https://github.com/AFNetworking/AFNetworking" target="_blank" rel="external">link</a> fork一份，这样自己就有一份了，git地址为 <a href="https://github.com/yourname/AFNetworking.git" target="_blank" rel="external">https://github.com/yourname/AFNetworking.git</a> ，打开命令行git clone <a href="https://github.com/yourname/AFNetworking.git" target="_blank" rel="external">https://github.com/yourname/AFNetworking.git</a> ，这样在本地就有一份你自己啦。<br>执行命令<code>git branch -a</code>，查看所有分支：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">* master</div><div class="line">  remotes/origin/<span class="number">0.10</span>.x</div><div class="line">  remotes/origin/<span class="number">1</span>.x</div><div class="line">  remotes/origin/HEAD -&gt; origin/master</div><div class="line">  remotes/origin/assets</div><div class="line">  remotes/origin/master</div></pre></td></tr></table></figure>
+
+<p>可以看到有5个分支，4个远程分支，origin/0.10.x,origin/1.x,origin/assets,origin/master，本地分支为master，也是当前分支。</p>
+<p>使用<code>git branch -vv</code>命令，此命令会列出本地分支最近的一次提交，以及跟踪的远程分支，得到结果如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">* master e2d5bb0 [origin/master] Merge pull request <span class="comment">#1485 from brunokoga/master</span></div></pre></td></tr></table></figure>
+
+<p>可以看到，本地分支跟踪了远程分支origin/master。<br>查看更详细的信息可以通过命令：<code>git remote show origin</code>，结果如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">* remote origin</div><div class="line">  Fetch URL: https://github.com/yourname/AFNetworking.git</div><div class="line">  Push  URL: https://github.com/yourname/AFNetworking.git</div><div class="line">  HEAD branch: master</div><div class="line">  Remote branches:</div><div class="line">    <span class="number">0.10</span>.x tracked</div><div class="line">    <span class="number">1</span>.x    tracked</div><div class="line">    assets tracked</div><div class="line">    master tracked</div><div class="line">  Local branch configured <span class="keyword">for</span> <span class="string">'git pull'</span>:</div><div class="line">    master merges with remote master</div><div class="line">  Local ref configured <span class="keyword">for</span> <span class="string">'git push'</span>:</div><div class="line">    master pushes to master (up to date)</div></pre></td></tr></table></figure>
+
+<p>其实本地分支master 跟踪 origin/master是在我们clone 的时候自动帮我们设置好的。<br>当我们git clone <a href="https://github.com/yourname/AFNetworking.git" target="_blank" rel="external">https://github.com/yourname/AFNetworking.git</a> 的时候，git会自动为我们将此远程仓库命名为 origin，并下载其中所有的数据，建立一个指向它的master分支的指针，在本地命名为 origin/master。但无法在本地更改其数据。接着，git为我们建立一个属于自己的本地master分支，始于origin上master分支相同的位置，可以就此开始工作。</p>
+<h1 id="2-创建跟踪分支">2.创建跟踪分支</h1>
+<p>如何我们想在本地创建一个分支，去track origin/1.x分支，则使用如下命令：<code>git checkout -b local1x origin/1.x</code>，这会切换到新建的 local1x 本地分支，其内容同远程分支 origin/1.x 一致，这样你就可以在里面继续开发了。像local1x这种远程分支 checkout 出来的本地分支，称为 跟踪分支 (tracking branch)。跟踪分支是一种和某个远程分支有直接联系的本地分支。</p>
+<p>我们在运行命令<code>git remote show origin</code>看看：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">* remote origin</div><div class="line">  Fetch URL: https://github.com/yourname/AFNetworking.git</div><div class="line">  Push  URL: https://github.com/yourname/AFNetworking.git</div><div class="line">  HEAD branch: master</div><div class="line">  Remote branches:</div><div class="line">    <span class="number">0.10</span>.x tracked</div><div class="line">    <span class="number">1</span>.x    tracked</div><div class="line">    assets tracked</div><div class="line">    master tracked</div><div class="line">  Local branches configured <span class="keyword">for</span> <span class="string">'git pull'</span>:</div><div class="line">    local1x merges with remote <span class="number">1</span>.x</div><div class="line">    master  merges with remote master</div><div class="line">  Local ref configured <span class="keyword">for</span> <span class="string">'git push'</span>:</div><div class="line">    master pushes to master (up to date)</div></pre></td></tr></table></figure>
+
+<p>可以看到<code>Local branches configured for &#39;git pull&#39;: local1x merges with remote 1.x</code>,意思就是在local1x分支下运行<code>git pull</code>命令，可以直接合并远程的分支1.x，</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">MacBook-Pro:AFNetworking $ git branch</div><div class="line">* local1x</div><div class="line">  master</div><div class="line">MacBook-Pro:AFNetworking $ git pull</div><div class="line">Already up-to-date.</div></pre></td></tr></table></figure>
+
+<p>但是如果我们运行git push呢？</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">MacBook-Pro:AFNetworking $ git push</div><div class="line">fatal: The upstream branch of your current branch does not match</div><div class="line">the name of your current branch.  To push to the upstream branch</div><div class="line">on the remote, use</div><div class="line"></div><div class="line">    git push origin HEAD:<span class="number">1</span>.x</div><div class="line"></div><div class="line">To push to the branch of the same name on the remote, use</div><div class="line"></div><div class="line">    git push origin local1x</div></pre></td></tr></table></figure>
+
+<p>提示已经很清楚了，因为刚刚建立跟踪分支的时候，名字不一样，所以在此push的时候要写上分支名字。</p>
+<p>如果我们执行命令:<code>git push origin local1x</code>,结果如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">MacBook-Pro:AFNetworking $ git push origin local1x</div><div class="line">Total <span class="number">0</span> (delta <span class="number">0</span>), reused <span class="number">0</span> (delta <span class="number">0</span>)</div><div class="line">To https://github.com/yourname/AFNetworking.git</div><div class="line"> * [new branch]      local1x -&gt; local1x</div></pre></td></tr></table></figure>
+
+<p>竟然给我创建在远端创建了一个新的local1x分支，赶快运行一下命令<code>git remote show origin</code>看看。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">yaozhuoyumatoMacBook-Pro:AFNetworking yzy$ git remote show origin</div><div class="line">* remote origin</div><div class="line">  Fetch URL: https://github.com/yourname/AFNetworking.git</div><div class="line">  Push  URL: https://github.com/yourname/AFNetworking.git</div><div class="line">  HEAD branch: master</div><div class="line">  Remote branches:</div><div class="line">    <span class="number">0.10</span>.x  tracked</div><div class="line">    <span class="number">1</span>.x     tracked</div><div class="line">    assets  tracked</div><div class="line">    local1x tracked</div><div class="line">    master  tracked</div><div class="line">  Local branches configured <span class="keyword">for</span> <span class="string">'git pull'</span>:</div><div class="line">    local1x merges with remote <span class="number">1</span>.x</div><div class="line">    master  merges with remote master</div><div class="line">  Local refs configured <span class="keyword">for</span> <span class="string">'git push'</span>:</div><div class="line">    local1x pushes to local1x (up to date)</div><div class="line">    master  pushes to master  (up to date)</div></pre></td></tr></table></figure>
+
+<p>现在才明白，当我们运行命令<code>git push origin local1x</code>，会去检查服务器有没有local1x分支，没有就会创建一个新的，并在我们下次在此branch运行git push的时候，会自动的push到远程分支。</p>
+<p>因此，创建远程分支的命令为: <code>git push origin 远程分支名</code></p>
+<p>现在我们看到当在local1x分支下，运行git pull 命令，拉取的为远程分支1.x上面的数据，而运行git push命令，是推送到远程分支local1x上，为了一致起见，我们可以重新设置git pull默认拉取的远程分支，<code>git branch --set-upstream-to=origin/local1x local1x</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">MacBook-Pro:AFNetworking <span class="variable">$git</span> branch --set-upstream-to=origin/local1x local1x</div><div class="line">Branch local1x <span class="keyword">set</span> up to track remote branch local1x from origin.</div></pre></td></tr></table></figure>
+
+<p>大概理解了吧？<br>因此，我们在创建跟踪分支的时候，最好其的名字和远程分支一样，则这样git push和git pull会默认给我们设置好。</p>
+<p>运行命令<code>git checkout -b 1.x origin/1.x</code>，如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">MacBook-Pro:AFNetworking $ git remote show origin</div><div class="line">* remote origin</div><div class="line">  Fetch URL: https://github.com/yourname/AFNetworking.git</div><div class="line">  Push  URL: https://github.com/yourname/AFNetworking.git</div><div class="line">  HEAD branch: master</div><div class="line">  Remote branches:</div><div class="line">    <span class="number">0.10</span>.x  tracked</div><div class="line">    <span class="number">1</span>.x     tracked</div><div class="line">    assets  tracked</div><div class="line">    local1x tracked</div><div class="line">    master  tracked</div><div class="line">  Local branches configured <span class="keyword">for</span> <span class="string">'git pull'</span>:</div><div class="line">    <span class="number">1</span>.x     merges with remote <span class="number">1</span>.x</div><div class="line">    local1x merges with remote local1x</div><div class="line">    master  merges with remote master</div><div class="line">  Local refs configured <span class="keyword">for</span> <span class="string">'git push'</span>:</div><div class="line">    <span class="number">1</span>.x     pushes to <span class="number">1</span>.x     (up to date)</div><div class="line">    local1x pushes to local1x (up to date)</div><div class="line">    master  pushes to master  (up to date)</div></pre></td></tr></table></figure>
+
+<p>要注意：<code>git checkout -b 1.x origin/1.x</code>和命令<code>git branch --track  1.x origin/1.x</code>是等价的，可以相互替换。</p>
+<h2 id="3-删除远程分支">3.删除远程分支</h2>
+<p>命令 <code>git push origin :local1x</code>删除远程分支local1x，如下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">MacBook-Pro:AFNetworking $ git push origin :local1x</div><div class="line">To https://github.com/yourname/AFNetworking.git</div><div class="line"> - [deleted]         local1x</div></pre></td></tr></table></figure>
+
+<p>远程分支大概常用的操作就这么多，以后遇到在补充吧。</p>
+
+      
+    </div>
+    <footer>
+      
+        
+  
+  <div class="categories">
+    <a href="/categories/git/">git</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/git/">git</a>
+  </div>
+
+        <div class="bdsharebuttonbox"><a href="#" class="bds_more" data-cmd="more"></a><a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a><a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a><a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a><a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a><a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a></div>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"1","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<section id="comment">
+
+</section>
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:ioser.cc">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/git/">git</a><small>3</small></li>
+  
+    <li><a href="/categories/iOS/">iOS</a><small>11</small></li>
+  
+    <li><a href="/categories/生活/">生活</a><small>3</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">标签</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/GCD/">GCD</a><small>2</small></li>
+  
+    <li><a href="/tags/NSOperation/">NSOperation</a><small>2</small></li>
+  
+    <li><a href="/tags/NSOperation-WWDC-NSOperationQueue/">NSOperation WWDC NSOperationQueue</a><small>1</small></li>
+  
+    <li><a href="/tags/NSOperationQueue-NSOperation/">NSOperationQueue NSOperation</a><small>1</small></li>
+  
+    <li><a href="/tags/NSRunLoop/">NSRunLoop</a><small>1</small></li>
+  
+    <li><a href="/tags/NSTimer/">NSTimer</a><small>1</small></li>
+  
+    <li><a href="/tags/UIView-AutoLayout/">UIView AutoLayout</a><small>1</small></li>
+  
+    <li><a href="/tags/git/">git</a><small>3</small></li>
+  
+    <li><a href="/tags/iOS7/">iOS7</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  <iframe width="100%" height="550" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=1&ptype=0&speed=0&skin=5&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=1732353090&verifier=eb816cbb&dpc=1"></iframe>
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2014 yaozhuoyu
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>
