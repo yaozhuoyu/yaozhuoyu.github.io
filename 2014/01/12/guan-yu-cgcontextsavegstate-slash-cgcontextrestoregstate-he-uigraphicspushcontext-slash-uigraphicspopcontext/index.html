@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   
-  <title>ioser</title>
+  <title>关于CGContextSaveGState、CGContextRestoreGState 和UIGraphicsPushContext、UIGraphicsPopContext | ioser</title>
   <meta name="author" content="yaozhuoyu">
   
   <meta name="description" content="yaozhuoyu’s Blog for iOS">
@@ -11,7 +11,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  
+  <meta property="og:title" content="关于CGContextSaveGState、CGContextRestoreGState 和UIGraphicsPushContext、UIGraphicsPopContext"/>
   <meta property="og:site_name" content="ioser"/>
 
   
@@ -50,20 +50,17 @@
     <header>
       
         <div class="icon"></div>
-        <time datetime="2014-01-11T16:00:00.000Z"><a href="/2014/01/12/guan-yu-cgcontextsavegstate-slash-cgcontextrestoregstate-he-uigraphicspushcontext-slash-uigraphicspopcontext/">2014-01-12</a></time>
+        <time datetime="2014-01-12T15:20:00.000Z"><a href="/2014/01/12/guan-yu-cgcontextsavegstate-slash-cgcontextrestoregstate-he-uigraphicspushcontext-slash-uigraphicspopcontext/">2014-01-12</a></time>
       
       
   
-    <h1 class="title"></h1>
+    <h1 class="title">关于CGContextSaveGState、CGContextRestoreGState 和UIGraphicsPushContext、UIGraphicsPopContext</h1>
   
 
     </header>
     <div class="entry">
       
-        <hr>
-<p>layout: post<br>title: 关于CGContextSaveGState/<br>CGContextRestoreGState 和 UIGraphicsPushContext/<br>UIGraphicsPopContext<br>date: 2014-01-12 23:20<br>comments: true</p>
-<h2 id="categories:_iOS">categories: iOS</h2>
-<p>在iOS绘图开发中，经常会看到成对的函数CGContextSaveGState/CGContextRestoreGState 和 UIGraphicsPushContext/UIGraphicsPopContext出现，一些初学者容易把这两对函数弄混淆。所以决定写一篇文章把其总结一下，高手可以略过。。</p>
+        <p>在iOS绘图开发中，经常会看到成对的函数CGContextSaveGState/CGContextRestoreGState 和 UIGraphicsPushContext/UIGraphicsPopContext出现，一些初学者容易把这两对函数弄混淆。所以决定写一篇文章把其总结一下，高手可以略过。。</p>
 <p><a id="more"></a></p>
 <h2 id="1-CGContextSaveGState/CGContextRestoreGState">1.CGContextSaveGState/CGContextRestoreGState</h2>
 <p>首先来看CGContextSaveGState/CGContextRestoreGState这一对函数，他们属于Quartz函数。主要用于保存上下文的绘制状态，并在之后恢复状态。<br>我们知道context就像一套绘制工具一样，当我们把绘制的线条颜色设置为一种颜色之后，如果在后续不去修改其颜色，它的线条颜色会一直保持下去。</p>
@@ -87,6 +84,11 @@
     <footer>
       
         
+  
+  <div class="categories">
+    <a href="/categories/iOS/">iOS</a>
+  </div>
+
         
         
   <div class="addthis addthis_toolbox addthis_default_style">
@@ -149,7 +151,7 @@
   
     <li><a href="/categories/git/">git</a><small>3</small></li>
   
-    <li><a href="/categories/iOS/">iOS</a><small>10</small></li>
+    <li><a href="/categories/iOS/">iOS</a><small>11</small></li>
   
     <li><a href="/categories/生活/">生活</a><small>2</small></li>
   
