@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   
-  <title>新博客的开始 | ioser</title>
+  <title>关于git push的时候提示warning: push.default is unset的问题 | ioser</title>
   <meta name="author" content="yaozhuoyu">
   
   <meta name="description" content="yaozhuoyu’s Blog for iOS">
@@ -11,7 +11,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  <meta property="og:title" content="新博客的开始"/>
+  <meta property="og:title" content="关于git push的时候提示warning: push.default is unset的问题"/>
   <meta property="og:site_name" content="ioser"/>
 
   
@@ -50,18 +50,24 @@
     <header>
       
         <div class="icon"></div>
-        <time datetime="2014-10-16T18:20:34.000Z"><a href="/2014/10/17/new-blog-begin/">2014-10-17</a></time>
+        <time datetime="2013-10-23T05:40:00.000Z"><a href="/2013/10/23/2013-10-23-guan-yu-git-pushde-shi-hou-ti-shi-warning-push-dot-default-is-unsetde-wen-ti/">2013-10-23</a></time>
       
       
   
-    <h1 class="title">新博客的开始</h1>
+    <h1 class="title">关于git push的时候提示warning: push.default is unset的问题</h1>
   
 
     </header>
     <div class="entry">
       
-        <p>最近这几个月一直都在忙着工作，虽然其中有闲的时候，去学习一些新的知识，但是都记录在了印象笔记里面。这样虽然方便，想记录点什么就记录，但是总觉得少了点分享。</p>
-<p>所以，决定从新开启博客，之前的博客是建立在octopress的基础上，发现其比较麻烦，特别是好长时间不用之后，更新很多错误，所以决定换到hexo上来，并且也换了新的域名，哈哈，希望自己这次一定要坚持！</p>
+        <p>今天在学习git的时候，使用了git push命令，git提示了一段警告，如下：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">warning: push.<span class="keyword">default</span> <span class="keyword">is</span> unset; its implicit value <span class="keyword">is</span> changing <span class="keyword">in</span></div><div class="line">Git <span class="number">2.0</span> from <span class="attribute">'matching</span>' <span class="keyword">to</span> <span class="attribute">'simple</span>'. <span class="keyword">To</span> squelch this message</div><div class="line"><span class="keyword">and</span> maintain the current behavior <span class="keyword">after</span> the <span class="keyword">default</span> changes, <span class="keyword">use</span>:</div><div class="line"></div><div class="line">  git config <span class="comment">--global push.default matching</span></div><div class="line"></div><div class="line"><span class="keyword">To</span> squelch this message <span class="keyword">and</span> adopt the <span class="keyword">new</span> behavior now, <span class="keyword">use</span>:</div><div class="line"></div><div class="line">  git config <span class="comment">--global push.default simple</span></div><div class="line"></div><div class="line">See <span class="attribute">'git</span> help config' <span class="keyword">and</span> search <span class="keyword">for</span> <span class="attribute">'push</span>.<span class="keyword">default</span>' <span class="keyword">for</span> further information.</div><div class="line">(the <span class="attribute">'simple</span>' mode was introduced <span class="keyword">in</span> Git <span class="number">1.7</span><span class="number">.11</span>. <span class="keyword">Use</span> the similar mode</div><div class="line"><span class="attribute">'current</span>' instead <span class="keyword">of</span> <span class="attribute">'simple</span>' <span class="keyword">if</span> you sometimes <span class="keyword">use</span> older versions <span class="keyword">of</span> Git)</div><div class="line"></div><div class="line">Everything up-<span class="keyword">to</span>-date</div></pre></td></tr></table></figure>
+
+<p>然后决定查个究竟。<br><a id="more"></a></p>
+<p>最后找到了原因所在。我们知道，当我们使用git push命令的时候，意思就把所有本地的local branches push到remote相同名字的branch上，此中方式称为matching。</p>
+<p>而另一种方式称为simple，此种方式只会把当前的分支push到远端对应的分支(此远端分支就是调用git pull可以获取内容的分支)。</p>
+<p>显然simple方式是比较好的，但是git 2.0版本之前默认为matching，git在2.0版本开始就改为simple了。</p>
+<p>所以为了解决此waring,我们只需输入命令<code>git config --global push.default simple</code>，回车就行。</p>
 
       
     </div>
@@ -70,10 +76,15 @@
         
   
   <div class="categories">
-    <a href="/categories/生活/">生活</a>
+    <a href="/categories/git/">git</a>
   </div>
 
         
+  
+  <div class="tags">
+    <a href="/tags/git/">git</a>
+  </div>
+
         <div class="bdsharebuttonbox"><a href="#" class="bds_more" data-cmd="more"></a><a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a><a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a><a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a><a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a><a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a></div>
 <script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"1","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
       

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   
-  <title>新博客的开始 | ioser</title>
+  <title>iOS应用之间跳转举例 | ioser</title>
   <meta name="author" content="yaozhuoyu">
   
   <meta name="description" content="yaozhuoyu’s Blog for iOS">
@@ -11,7 +11,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  <meta property="og:title" content="新博客的开始"/>
+  <meta property="og:title" content="iOS应用之间跳转举例"/>
   <meta property="og:site_name" content="ioser"/>
 
   
@@ -50,29 +50,40 @@
     <header>
       
         <div class="icon"></div>
-        <time datetime="2014-10-16T18:20:34.000Z"><a href="/2014/10/17/new-blog-begin/">2014-10-17</a></time>
+        <time datetime="2013-12-05T03:47:00.000Z"><a href="/2013/12/05/2013-12-05-iosying-yong-zhi-jian-tiao-zhuan-ju-li/">2013-12-05</a></time>
       
       
   
-    <h1 class="title">新博客的开始</h1>
+    <h1 class="title">iOS应用之间跳转举例</h1>
   
 
     </header>
     <div class="entry">
       
-        <p>最近这几个月一直都在忙着工作，虽然其中有闲的时候，去学习一些新的知识，但是都记录在了印象笔记里面。这样虽然方便，想记录点什么就记录，但是总觉得少了点分享。</p>
-<p>所以，决定从新开启博客，之前的博客是建立在octopress的基础上，发现其比较麻烦，特别是好长时间不用之后，更新很多错误，所以决定换到hexo上来，并且也换了新的域名，哈哈，希望自己这次一定要坚持！</p>
+        <p>最近好久没有写文章了。这两天在研究iOS中app之间的跳转，发现网上虽然很多资料，但是都没有详细的举例子，今天打算讲讲。</p>
+<a id="more"></a>
+
+<h2 id="1-两个简单app之间的跳转">1.两个简单app之间的跳转</h2>
+<p>(1).首先创建两个工程A和B。<br>(2).现在我想在B工程中，点击某个按钮跳转到A。则B要知道A定义的URL Types。<br>(3).下面我们看看A中plist的URL Types是如何定义的：</p>
+<img src="http://yuzhongleixueren.u.qiniudn.com/2013-12-05-12-04.png" width="494" height="114">
+
+<p>上面A的plist的大概意思就是：如果外部的程序想要打开我，URL的地址必须要为nav://com.b.nav</p>
+<p>(4)现在B中如果点击一个按钮，想要打开A，则应用中应该这么写</p>
+<figure class="highlight objective-c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">- (<span class="keyword">IBAction</span>)openA:(<span class="keyword">id</span>)sender</div><div class="line">{</div><div class="line">	<span class="built_in">NSString</span> *str = <span class="string">@"nav://com.b.nav?parameter=%@"</span>;</div><div class="line">    <span class="built_in">NSURL</span> *url = [<span class="built_in">NSURL</span> URLWithString:[<span class="built_in">NSString</span> stringWithFormat:str, <span class="string">@"可以传参数"</span>]];</div><div class="line">    [[<span class="built_in">UIApplication</span> sharedApplication] openURL:url];</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>(5)如果在A中又想回到B，则要查看B的plist了。</p>
+<img src="http://yuzhongleixueren.u.qiniudn.com/2013-12-05-12-51.png" width="518" height="114">
+
+<p>在A中直接下面代码就回到B了。</p>
+<figure class="highlight objective-c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">- (<span class="keyword">IBAction</span>)backB:(<span class="keyword">id</span>)sender</div><div class="line">{</div><div class="line">	<span class="built_in">NSString</span> *str = <span class="string">@"test://com.a.test?parameter=%@"</span>;</div><div class="line">    <span class="built_in">NSURL</span> *url = [<span class="built_in">NSURL</span> URLWithString:[<span class="built_in">NSString</span> stringWithFormat:str, <span class="string">@"可以传参数"</span>]];</div><div class="line">    [[<span class="built_in">UIApplication</span> sharedApplication] openURL:url];</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>总结一下，就是在想要跳转，就要知道要跳转到的app中plist URL types的定义。<br>其实不需要写URL identifier只写URL Schemes也可以同样的跳转<br>NSString *str = @”nav://parameter=%@”; 就可以打开A了。</p>
 
       
     </div>
     <footer>
       
         
-  
-  <div class="categories">
-    <a href="/categories/生活/">生活</a>
-  </div>
-
         
         <div class="bdsharebuttonbox"><a href="#" class="bds_more" data-cmd="more"></a><a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a><a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a><a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a><a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a><a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a></div>
 <script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"1","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>

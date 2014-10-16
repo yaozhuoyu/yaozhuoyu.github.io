@@ -1,0 +1,194 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>关于NSTimer | ioser</title>
+  <meta name="author" content="yaozhuoyu">
+  
+  <meta name="description" content="yaozhuoyu’s Blog for iOS">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="关于NSTimer"/>
+  <meta property="og:site_name" content="ioser"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="ioser" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">ioser</a></h1>
+  <h2><a href="/">记录iOS点点滴滴</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-11-04T06:49:00.000Z"><a href="/2013/11/04/2013-11-04-guan-yu-nstimer/">2013-11-04</a></time>
+      
+      
+  
+    <h1 class="title">关于NSTimer</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>NSTimer是我们经常使用的一个类，相信大家都使用过。但是NSTimer在使用的时候有很多小陷进，以及我们没有考虑到的问题，所以决定用此篇文章记录在使用中遇到的问题。<br><a id="more"></a></p>
+<h2 id="1-_fire方法">1. fire方法</h2>
+<figure class="highlight objective-c"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="pp">- <span class="params">(void)</span>fire</span></div></pre></td></tr></table></figure>
+
+<p>关于这个方法官方的解释是这样的：<br>You can use this method to fire a repeating timer without interrupting its regular firing schedule. If the timer is non-repeating, it is automatically invalidated after firing, even if its scheduled fire date has not arrived.</p>
+<p>比较难懂，我们举个例子来说吧。对于repeat timer来讲，如果调用fire方法，会直接触发timer的action函数，但原来的按照指定计划时间的action不会受到影响。看一个小小例子：</p>
+<figure class="highlight objective-c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">- (<span class="keyword">void</span>)viewDidLoad</div><div class="line">{</div><div class="line">    [<span class="keyword">super</span> viewDidLoad];</div><div class="line">    </div><div class="line">    testTimer = [NSTimer timerWithTimeInterval:<span class="number">5.0</span>f target:<span class="keyword">self</span> selector:<span class="keyword">@selector</span>(timerAction:) userInfo:<span class="literal">nil</span> repeats:<span class="literal">YES</span>];</div><div class="line">    NSRunLoop *runloop=[NSRunLoop currentRunLoop];</div><div class="line">    [runloop addTimer:testTimer forMode:NSDefaultRunLoopMode];</div><div class="line">    </div><div class="line">    <span class="built_in">UIButton</span> *btn = [<span class="built_in">UIButton</span> buttonWithType:UIButtonTypeSystem];</div><div class="line">    btn<span class="variable">.frame</span> = CGRectMake(<span class="number">100.0</span>f, <span class="number">100.0</span>f, <span class="number">100.0</span>f, <span class="number">30.0</span>f);</div><div class="line">    [btn setTitle:<span class="string">@"hit"</span> forState:UIControlStateNormal];</div><div class="line">    [btn addTarget:<span class="keyword">self</span> action:<span class="keyword">@selector</span>(hitFire:) forControlEvents:UIControlEventTouchUpInside];</div><div class="line">    [<span class="keyword">self</span><span class="variable">.view</span> addSubview:btn];</div><div class="line">    <span class="built_in">NSLog</span>(<span class="string">@"========== add timer over"</span>);</div><div class="line">}</div><div class="line"></div><div class="line">- (<span class="keyword">void</span>)hitFire:(<span class="built_in">UIButton</span> *)btn{</div><div class="line">    <span class="built_in">NSLog</span>(<span class="string">@"hitBtn: "</span>);</div><div class="line">    [testTimer fire];</div><div class="line">}</div><div class="line"></div><div class="line">- (<span class="keyword">void</span>)timerAction:(<span class="keyword">id</span>)timer{</div><div class="line">    <span class="built_in">NSLog</span>(<span class="string">@"======== timerAction start ==========="</span>);</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>运行结果如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="number">2013</span>-<span class="number">11</span>-<span class="number">04</span> <span class="number">15</span>:<span class="number">05</span>:<span class="number">33.571</span> podProject[<span class="number">11554</span>:<span class="number">60</span>b] ========== add timer over</div><div class="line"><span class="number">2013</span>-<span class="number">11</span>-<span class="number">04</span> <span class="number">15</span>:<span class="number">05</span>:<span class="number">38.570</span> podProject[<span class="number">11554</span>:<span class="number">60</span>b] ======== timerAction start ===========</div><div class="line"><span class="number">2013</span>-<span class="number">11</span>-<span class="number">04</span> <span class="number">15</span>:<span class="number">05</span>:<span class="number">40.821</span> podProject[<span class="number">11554</span>:<span class="number">60</span>b] hitBtn: </div><div class="line"><span class="number">2013</span>-<span class="number">11</span>-<span class="number">04</span> <span class="number">15</span>:<span class="number">05</span>:<span class="number">40.823</span> podProject[<span class="number">11554</span>:<span class="number">60</span>b] ======== timerAction start ===========</div><div class="line"><span class="number">2013</span>-<span class="number">11</span>-<span class="number">04</span> <span class="number">15</span>:<span class="number">05</span>:<span class="number">43.570</span> podProject[<span class="number">11554</span>:<span class="number">60</span>b] ======== timerAction start ===========</div><div class="line"><span class="number">2013</span>-<span class="number">11</span>-<span class="number">04</span> <span class="number">15</span>:<span class="number">05</span>:<span class="number">48.571</span> podProject[<span class="number">11554</span>:<span class="number">60</span>b] ======== timerAction start ===========</div><div class="line"><span class="number">2013</span>-<span class="number">11</span>-<span class="number">04</span> <span class="number">15</span>:<span class="number">05</span>:<span class="number">50.405</span> podProject[<span class="number">11554</span>:<span class="number">60</span>b] hitBtn: </div><div class="line"><span class="number">2013</span>-<span class="number">11</span>-<span class="number">04</span> <span class="number">15</span>:<span class="number">05</span>:<span class="number">50.407</span> podProject[<span class="number">11554</span>:<span class="number">60</span>b] ======== timerAction start ===========</div><div class="line"><span class="number">2013</span>-<span class="number">11</span>-<span class="number">04</span> <span class="number">15</span>:<span class="number">05</span>:<span class="number">53.571</span> podProject[<span class="number">11554</span>:<span class="number">60</span>b] ======== timerAction start ===========</div><div class="line"><span class="number">2013</span>-<span class="number">11</span>-<span class="number">04</span> <span class="number">15</span>:<span class="number">05</span>:<span class="number">58.571</span> podProject[<span class="number">11554</span>:<span class="number">60</span>b] ======== timerAction start ===========</div></pre></td></tr></table></figure>
+
+<p>根据打印结果我们可以看到，在运行的过程中，我们出发了两次fire，然后timerAction:立即运行，但是原来的计划不变，隔5秒进行一次。</p>
+<p>但是对于non-repeat timer来讲，当在action触发之前去调用fire方法，则timer会自动被置为invalidate。如上面的例子，当我们将创建timer的一句修改为testTimer = [NSTimer timerWithTimeInterval:5.0f target:self selector:@selector(timerAction:) userInfo:nil repeats:NO],则运行结果为：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="number">2013</span>-<span class="number">11</span>-<span class="number">04</span> <span class="number">15</span>:<span class="number">09</span>:<span class="number">17.649</span> podProject[<span class="number">11577</span>:<span class="number">60</span>b] ========== add timer over</div><div class="line"><span class="number">2013</span>-<span class="number">11</span>-<span class="number">04</span> <span class="number">15</span>:<span class="number">09</span>:<span class="number">20.947</span> podProject[<span class="number">11577</span>:<span class="number">60</span>b] hitBtn: </div><div class="line"><span class="number">2013</span>-<span class="number">11</span>-<span class="number">04</span> <span class="number">15</span>:<span class="number">09</span>:<span class="number">20.949</span> podProject[<span class="number">11577</span>:<span class="number">60</span>b] ======== timerAction start ===========</div></pre></td></tr></table></figure>
+
+<p>这就是fire的效果。</p>
+<h2 id="2-关于timer_selector的执行时间">2.关于timer selector的执行时间</h2>
+<p>一般情况下，我们的selector都能很快执行完成，但是当selector执行时间很久时，例如，超过了TimeInterval的时候会发生什么情况？我们看看下面的例子：</p>
+<figure class="highlight objective-c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">- (<span class="keyword">void</span>)viewDidLoad</div><div class="line">{</div><div class="line">    [<span class="keyword">super</span> viewDidLoad];</div><div class="line">    </div><div class="line">    testTimer = [NSTimer timerWithTimeInterval:<span class="number">5.0</span>f target:<span class="keyword">self</span> selector:<span class="keyword">@selector</span>(timerAction:) userInfo:<span class="literal">nil</span> repeats:<span class="literal">YES</span>];</div><div class="line">    NSRunLoop *runloop=[NSRunLoop currentRunLoop];</div><div class="line">    [runloop addTimer:testTimer forMode:NSDefaultRunLoopMode];</div><div class="line">}</div><div class="line"></div><div class="line">- (<span class="keyword">void</span>)timerAction:(<span class="keyword">id</span>)timer{</div><div class="line">    <span class="built_in">NSLog</span>(<span class="string">@"======== timerAction start ==========="</span>);</div><div class="line">    sleep(<span class="number">6.0</span>f);</div><div class="line">    <span class="built_in">NSLog</span>(<span class="string">@"======= end========="</span>);</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>运行结果为：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="number">2013</span>-<span class="number">11</span>-<span class="number">04</span> <span class="number">15</span>:<span class="number">15</span>:<span class="number">47.720</span> podProject[<span class="number">11584</span>:<span class="number">60</span>b] ======== timerAction start ===========</div><div class="line"><span class="number">2013</span>-<span class="number">11</span>-<span class="number">04</span> <span class="number">15</span>:<span class="number">15</span>:<span class="number">53.725</span> podProject[<span class="number">11584</span>:<span class="number">60</span>b] ======= end=========</div><div class="line"><span class="number">2013</span>-<span class="number">11</span>-<span class="number">04</span> <span class="number">15</span>:<span class="number">15</span>:<span class="number">57.720</span> podProject[<span class="number">11584</span>:<span class="number">60</span>b] ======== timerAction start ===========</div><div class="line"><span class="number">2013</span>-<span class="number">11</span>-<span class="number">04</span> <span class="number">15</span>:<span class="number">16</span>:<span class="number">03.723</span> podProject[<span class="number">11584</span>:<span class="number">60</span>b] ======= end=========</div><div class="line"><span class="number">2013</span>-<span class="number">11</span>-<span class="number">04</span> <span class="number">15</span>:<span class="number">16</span>:<span class="number">07.720</span> podProject[<span class="number">11584</span>:<span class="number">60</span>b] ======== timerAction start ===========</div><div class="line"><span class="number">2013</span>-<span class="number">11</span>-<span class="number">04</span> <span class="number">15</span>:<span class="number">16</span>:<span class="number">13.723</span> podProject[<span class="number">11584</span>:<span class="number">60</span>b] ======= end=========</div><div class="line"><span class="number">2013</span>-<span class="number">11</span>-<span class="number">04</span> <span class="number">15</span>:<span class="number">16</span>:<span class="number">17.720</span> podProject[<span class="number">11584</span>:<span class="number">60</span>b] ======== timerAction start ===========</div><div class="line"><span class="number">2013</span>-<span class="number">11</span>-<span class="number">04</span> <span class="number">15</span>:<span class="number">16</span>:<span class="number">23.723</span> podProject[<span class="number">11584</span>:<span class="number">60</span>b] ======= end=========</div><div class="line"><span class="number">2013</span>-<span class="number">11</span>-<span class="number">04</span> <span class="number">15</span>:<span class="number">16</span>:<span class="number">27.720</span> podProject[<span class="number">11584</span>:<span class="number">60</span>b] ======== timerAction start ===========</div><div class="line"><span class="number">2013</span>-<span class="number">11</span>-<span class="number">04</span> <span class="number">15</span>:<span class="number">16</span>:<span class="number">33.723</span> podProject[<span class="number">11584</span>:<span class="number">60</span>b] ======= end=========</div><div class="line"><span class="number">2013</span>-<span class="number">11</span>-<span class="number">04</span> <span class="number">15</span>:<span class="number">16</span>:<span class="number">37.720</span> podProject[<span class="number">11584</span>:<span class="number">60</span>b] ======== timerAction start ===========</div><div class="line"><span class="number">2013</span>-<span class="number">11</span>-<span class="number">04</span> <span class="number">15</span>:<span class="number">16</span>:<span class="number">43.723</span> podProject[<span class="number">11584</span>:<span class="number">60</span>b] ======= end=========</div></pre></td></tr></table></figure>
+
+<p>通过结果我们可以很容易的分析出，当timer的selector执行时间超过timeInterval的时候，其会丢弃已经过了的selector，按原计划等待最近的执行。</p>
+
+      
+    </div>
+    <footer>
+      
+        
+  
+  <div class="categories">
+    <a href="/categories/iOS/">iOS</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/NSTimer/">NSTimer</a>
+  </div>
+
+        <div class="bdsharebuttonbox"><a href="#" class="bds_more" data-cmd="more"></a><a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a><a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a><a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a><a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a><a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a></div>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"1","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<section id="comment">
+
+</section>
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:ioser.cc">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/git/">git</a><small>3</small></li>
+  
+    <li><a href="/categories/iOS/">iOS</a><small>11</small></li>
+  
+    <li><a href="/categories/生活/">生活</a><small>3</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">标签</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/GCD/">GCD</a><small>2</small></li>
+  
+    <li><a href="/tags/NSOperation/">NSOperation</a><small>2</small></li>
+  
+    <li><a href="/tags/NSOperation-WWDC-NSOperationQueue/">NSOperation WWDC NSOperationQueue</a><small>1</small></li>
+  
+    <li><a href="/tags/NSOperationQueue-NSOperation/">NSOperationQueue NSOperation</a><small>1</small></li>
+  
+    <li><a href="/tags/NSRunLoop/">NSRunLoop</a><small>1</small></li>
+  
+    <li><a href="/tags/NSTimer/">NSTimer</a><small>1</small></li>
+  
+    <li><a href="/tags/UIView-AutoLayout/">UIView AutoLayout</a><small>1</small></li>
+  
+    <li><a href="/tags/git/">git</a><small>3</small></li>
+  
+    <li><a href="/tags/iOS7/">iOS7</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  <iframe width="100%" height="550" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=1&ptype=0&speed=0&skin=5&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=1732353090&verifier=eb816cbb&dpc=1"></iframe>
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2014 yaozhuoyu
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>

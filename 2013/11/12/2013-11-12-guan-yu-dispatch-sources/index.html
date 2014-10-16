@@ -1,0 +1,211 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>关于Dispatch Sources | ioser</title>
+  <meta name="author" content="yaozhuoyu">
+  
+  <meta name="description" content="yaozhuoyu’s Blog for iOS">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="关于Dispatch Sources"/>
+  <meta property="og:site_name" content="ioser"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="ioser" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">ioser</a></h1>
+  <h2><a href="/">记录iOS点点滴滴</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-11-12T13:11:00.000Z"><a href="/2013/11/12/2013-11-12-guan-yu-dispatch-sources/">2013-11-12</a></time>
+      
+      
+  
+    <h1 class="title">关于Dispatch Sources</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>dispatch source是一个基本数据类型，它用来协调处理low-level的系统事件，其中包括timer dispatch source，signal dispatch source，descriptor sources，process dispatch source，Mach port dispatch source，custom dispatch sources。</p>
+<p>当配置一个dispatch source的时候，我们需要指定监控事件的类型，当事件发生时要执行的block code，已经执行code的queue，当一个监控的事件发生时，dispatch source提交block到指定的dispatch queue去执行。dispatch source会retain住其相关联的dispatch queue，阻止其被过早的被release。</p>
+<p>为了防止事件在dispatch queue中积压，dispatch sources实现了一个事件聚合机制(event coalescing scheme)，如果一个事件在上一个事件还没有开始处理之前到达，dispatch source会聚合两次事件的data。根据事件的类型，聚合可能是代替旧的事件或者时更新信息。</p>
+<p>下面将详细说明Dispatch Sources。<br><a id="more"></a></p>
+<h2 id="1-创建Dispatch_Sources">1.创建Dispatch Sources</h2>
+<p>创建一个Dispatch Source分为下面几步：<br>(1)使用函数<code>dispatch_source_create</code>创建一个dispatch source。<br>(2)配置dispatch source，其中包括给dispatch source赋值一个event handler，对于timer source，需要使用<code>dispatch_source_set_timer</code>设置timer信息。<br>(3)给dispatch source赋值一个cancel handler(可选的)<br>(4)调用<code>dispatch_resume</code>开始。</p>
+<p>因为dispatch source在创建之后，需要进行一些配置才能被使用，因此<code>dispatch_source_create</code>返回的dispatch source状态为suspended，在suspended状态，一个dispatch source接收到事件，但并不处理。下面主要讲一下dispatch source的配置。</p>
+<p>通过函数<code>dispatch_source_set_event_handler</code> 或者 <code>dispatch_source_set_event_handler_f</code>设置dispatch source的event handler，当event事件到达的时候，dispatch source提交event handler到设定的dispatch queue运行。</p>
+<p>event handler有责任处理所有到达的事件。如果一个event handler已经入队等待执行的时候，一个新的event到来，dispatch source会聚合两个事件。event handler通常只能看到最近的event信息。如果一个或者多个event到达的时候，event handler已经在执行，则dispatch source会持有这些events，直到event handler完成，这时会提交新的event handler处理新的events。</p>
+<p>下面是一个配置event handler的例子：</p>
+<figure class="highlight objective-c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">dispatch_<span class="built_in">source</span>_t <span class="built_in">source</span> = dispatch_<span class="built_in">source</span>_create(DISPATCH_SOURCE_TYPE_READ,</div><div class="line">                                                      myDescriptor, <span class="number">0</span>, myQueue);</div><div class="line">    dispatch_<span class="built_in">source</span>_<span class="keyword">set</span>_event_handler(<span class="built_in">source</span>, ^{</div><div class="line">        // Get some data from the <span class="built_in">source</span> variable, which is captured</div><div class="line">        // from the parent context.</div><div class="line">        size_t estimated = dispatch_<span class="built_in">source</span>_get_data(<span class="built_in">source</span>);</div><div class="line">        </div><div class="line">        // Continue reading the descriptor...</div><div class="line">    });</div><div class="line">    dispatch_resume(<span class="built_in">source</span>);</div></pre></td></tr></table></figure>
+
+<p>cancel handler在dispatch source被释放的时候用于清理工作。对于大多数dispatch source类型，cancel handler是可选的。对于一些dispatch source，使用了descriptor或者Mach port，则需要提供cancel handler去close descriptor或者release Mach port。</p>
+<p>安装cancel handler通过函数 <code>dispatch_source_set_cancel_handler</code>或者<code>dispatch_source_set_cancel_handler_f</code>，下面例子：</p>
+<figure class="highlight objective-c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function">dispatch_source_set_cancel_handler</span>(mySource, ^{</div><div class="line">   <span class="function">close</span>(fd); <span class="comment">// Close a file descriptor opened earlier.</span></div><div class="line">});</div></pre></td></tr></table></figure>
+
+<p>和其他的GCD数据类型一样，我们可以使用函数<code>dispatch_set_context</code>去设置和dispatch source相关联的custom data。如果我们在context中存储了custom data，则我们应该设置cancel handler，当dispatch source不在需要的时候去释放这些data。</p>
+<h2 id="2-例子">2.例子</h2>
+<p>下面将对每一个dispatch source给出一个例子。</p>
+<p>(1)Timer<br>Timer source顾名思义，就是会按照指定的间隔时间周期性的产生事件。当电脑进入sleep模式，所有的timer dispatch source也会被暂停，当电脑wake up的时候，这些dispatch source也会自动的wake。</p>
+<p>根据timer source配置的不同，当一个timer暂停之后再次触发的时间可能不同。如果使用<code>dispatch_time</code>设置dispatch source，dispatch source使用系统提供的缺省时钟，当程序处于sleep的时候，系统默认时钟是不前进的。相反，当使用<code>dispatch_walltime</code>去设置timer dispatch source的时候，timer触发是按照真实时间计算的。<br>下面看一个例子，首先使用dispatch_walltime去设置timer dispatch source。</p>
+<figure class="highlight objective-c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">- (<span class="keyword">void</span>)createTimerSource{</div><div class="line">    timerSource = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, <span class="number">0</span>, <span class="number">0</span>, dispatch_get_main_queue());</div><div class="line">    dispatch_source_set_timer(timerSource,</div><div class="line">                              dispatch_walltime(<span class="literal">NULL</span>, <span class="number">0</span>),<span class="comment">//start</span></div><div class="line">                              <span class="number">30</span>ull * NSEC_PER_SEC,<span class="comment">//interval</span></div><div class="line">                              <span class="number">1</span>ull * NSEC_PER_SEC<span class="comment">//leeway</span></div><div class="line">                              );</div><div class="line">    dispatch_source_set_event_handler(timerSource, ^{</div><div class="line">        <span class="built_in">NSLog</span>(<span class="string">@"timer fire"</span>);</div><div class="line">    });</div><div class="line">    dispatch_resume(timerSource);</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>或者将其中的<code>dispatch_walltime(NULL, 0)</code>改为<code>dispatch_time(DISPATCH_TIME_NOW, 0)</code>，发现两者在iOS上面没有差异，不知道在Mac上怎么样，感兴趣的可以试一试。</p>
+<p>(2)从descriptor读取数据<br>先看例子：</p>
+<figure class="highlight objective-c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">Boolean</span> MyProcessFileData(<span class="keyword">char</span> *buffer, ssize_t <span class="keyword">size</span>){</div><div class="line">    <span class="comment">//todo:</span></div><div class="line">    <span class="keyword">return</span> YES;</div><div class="line">}</div><div class="line"></div><div class="line">dispatch_source_t ProcessContentsOfFile(const <span class="keyword">char</span>* filename)</div><div class="line">{</div><div class="line">    <span class="comment">// Prepare the file for reading.</span></div><div class="line">    <span class="keyword">int</span> fd = open(filename, O_RDONLY);</div><div class="line">    <span class="keyword">if</span> (fd == -<span class="number">1</span>)</div><div class="line">        <span class="keyword">return</span> <span class="keyword">NULL</span>;</div><div class="line">    fcntl(fd, F_SETFL, O_NONBLOCK);  <span class="comment">// Avoid blocking the read operation</span></div><div class="line">    </div><div class="line">    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, <span class="number">0</span>);</div><div class="line">    dispatch_source_t readSource = dispatch_source_create(DISPATCH_SOURCE_TYPE_READ,</div><div class="line">                                                          fd, <span class="number">0</span>, queue);</div><div class="line">    <span class="keyword">if</span> (!readSource)</div><div class="line">    {</div><div class="line">        close(fd);</div><div class="line">        <span class="keyword">return</span> <span class="keyword">NULL</span>;</div><div class="line">    }</div><div class="line">    </div><div class="line">    <span class="comment">// Install the event handler</span></div><div class="line">    dispatch_source_set_event_handler(readSource, ^{</div><div class="line">        size_t estimated = dispatch_source_get_data(readSource) + <span class="number">1</span>;</div><div class="line">        <span class="comment">// Read the data into a text buffer.</span></div><div class="line">        <span class="keyword">char</span>* buffer = (<span class="keyword">char</span>*)malloc(estimated);</div><div class="line">        <span class="keyword">if</span> (buffer)</div><div class="line">        {</div><div class="line">            ssize_t actual = <span class="keyword">read</span>(fd, buffer, (estimated));</div><div class="line">            <span class="keyword">Boolean</span> done = MyProcessFileData(buffer, actual);  <span class="comment">// Process the data.</span></div><div class="line">            </div><div class="line">            <span class="comment">// Release the buffer when done.</span></div><div class="line">            free(buffer);</div><div class="line">            </div><div class="line">            <span class="comment">// If there is no more data, cancel the source.</span></div><div class="line">            <span class="keyword">if</span> (done)</div><div class="line">                dispatch_source_cancel(readSource);</div><div class="line">        }</div><div class="line">    });</div><div class="line">    </div><div class="line">    <span class="comment">// Install the cancellation handler</span></div><div class="line">    dispatch_source_set_cancel_handler(readSource, ^{close(fd);});</div><div class="line">    </div><div class="line">    <span class="comment">// Start reading the file.</span></div><div class="line">    dispatch_resume(readSource);</div><div class="line">    <span class="keyword">return</span> readSource;</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>上面的例子是从一个file中读取数据。其中需要注意的是fcntl设置为非阻塞的，其他的都很简单。</p>
+<p>(3)向descriptor写数据</p>
+<figure class="highlight objective-c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line">dispatch_source_t WriteDataToFile(<span class="keyword">const</span> <span class="keyword">char</span>* filename)</div><div class="line">{</div><div class="line">    <span class="keyword">int</span> fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC,</div><div class="line">                  (S_IRUSR | S_IWUSR | S_ISUID | S_ISGID));</div><div class="line">    <span class="keyword">if</span> (fd == -<span class="number">1</span>)</div><div class="line">        <span class="keyword">return</span> NULL;</div><div class="line">    fcntl(fd, F_SETFL); <span class="comment">// Block during the write.</span></div><div class="line">    </div><div class="line">    dispatch_queue_t <span class="built_in">queue</span> = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, <span class="number">0</span>);</div><div class="line">    dispatch_source_t writeSource = dispatch_source_create(DISPATCH_SOURCE_TYPE_WRITE,</div><div class="line">                                                           fd, <span class="number">0</span>, <span class="built_in">queue</span>);</div><div class="line">    <span class="keyword">if</span> (!writeSource)</div><div class="line">    {</div><div class="line">        close(fd);</div><div class="line">        <span class="keyword">return</span> NULL;</div><div class="line">    }</div><div class="line">    </div><div class="line">    dispatch_source_set_event_handler(writeSource, ^{</div><div class="line">        size_t bufferSize = MyGetDataSize();</div><div class="line">        <span class="keyword">void</span>* buffer = <span class="built_in">malloc</span>(bufferSize);</div><div class="line">        </div><div class="line">        size_t actual = MyGetData(buffer, bufferSize);</div><div class="line">        write(fd, buffer, actual);</div><div class="line">        </div><div class="line">        <span class="built_in">free</span>(buffer);</div><div class="line">        </div><div class="line">        <span class="comment">// Cancel and release the dispatch source when done.</span></div><div class="line">        dispatch_source_cancel(writeSource);</div><div class="line">    });</div><div class="line">    </div><div class="line">    dispatch_source_set_cancel_handler(writeSource, ^{close(fd);});</div><div class="line">    dispatch_resume(writeSource);</div><div class="line">    <span class="keyword">return</span> (writeSource);</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>(4)监视文件系统对象的变化<br>如果想要监视一个文件系统对象的变化，创建dispatch source的时候使用类型DISPATCH_SOURCE_TYPE_VNODE，当一个文件删除，写入，或者重命名等等的时候，可以收到通知。</p>
+<figure class="highlight objective-c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line">dispatch_source_t MonitorNameChangesToFile(const <span class="keyword">char</span>* filename)</div><div class="line">{</div><div class="line">    <span class="keyword">int</span> fd = open(filename, O_EVTONLY);</div><div class="line">    <span class="keyword">if</span> (fd == -<span class="number">1</span>)</div><div class="line">        <span class="keyword">return</span> <span class="keyword">NULL</span>;</div><div class="line">    </div><div class="line">    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, <span class="number">0</span>);</div><div class="line">    dispatch_source_t <span class="keyword">source</span> = dispatch_source_create(DISPATCH_SOURCE_TYPE_VNODE,</div><div class="line">                                                      fd, DISPATCH_VNODE_RENAME, queue);</div><div class="line">    <span class="keyword">if</span> (<span class="keyword">source</span>)</div><div class="line">    {</div><div class="line">        <span class="comment">// Copy the filename for later use.</span></div><div class="line">        <span class="keyword">int</span> length = strlen(filename);</div><div class="line">        <span class="keyword">char</span>* newString = (<span class="keyword">char</span>*)malloc(length + <span class="number">1</span>);</div><div class="line">        newString = strcpy(newString, filename);</div><div class="line">        dispatch_set_context(<span class="keyword">source</span>, newString);</div><div class="line">        </div><div class="line">        <span class="comment">// Install the event handler to process the name change</span></div><div class="line">        dispatch_source_set_event_handler(<span class="keyword">source</span>, ^{</div><div class="line">            const <span class="keyword">char</span>*  oldFilename = (<span class="keyword">char</span>*)dispatch_get_context(<span class="keyword">source</span>);</div><div class="line">            MyUpdateFileName(oldFilename, fd);</div><div class="line">        });</div><div class="line">        </div><div class="line">        <span class="comment">// Install a cancellation handler to free the descriptor</span></div><div class="line">        <span class="comment">// and the stored string.</span></div><div class="line">        dispatch_source_set_cancel_handler(<span class="keyword">source</span>, ^{</div><div class="line">            <span class="keyword">char</span>* fileStr = (<span class="keyword">char</span>*)dispatch_get_context(<span class="keyword">source</span>);</div><div class="line">            free(fileStr);</div><div class="line">            close(fd);</div><div class="line">        });</div><div class="line">        </div><div class="line">        <span class="comment">// Start processing events.</span></div><div class="line">        dispatch_resume(<span class="keyword">source</span>);</div><div class="line">    }</div><div class="line">    <span class="keyword">else</span></div><div class="line">        close(fd);</div><div class="line">    </div><div class="line">    <span class="keyword">return</span> <span class="keyword">source</span>;</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>上面的例子是用来监控文件名字的变化。</p>
+<p>还有监视signal和监视进程，因为iOS中不能使用，所以在此处不在讲解。</p>
+<h2 id="3-取消一个dispatch_source">3.取消一个dispatch source</h2>
+<p>只有在调用<code>dispatch_source_cancel</code>之后，一个dispatch source才会被取消。取消一个dispatch source之后，就会停止收到新的事件，并且是不可撤销的，因此一般在cancel一个source之后，就释放其。</p>
+<figure class="highlight objective-c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">void <span class="function">RemoveDispatchSource</span>(dispatch_source_t mySource)</div><div class="line">{</div><div class="line">    <span class="function">dispatch_source_cancel</span>(mySource);</div><div class="line">    <span class="function">dispatch_release</span>(mySource);</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>cancel是一个异步操作，尽管调用cancel函数之后，就停止接收新的事件，但是会等待已经接收的事件处理完，才真正取消。</p>
+
+      
+    </div>
+    <footer>
+      
+        
+  
+  <div class="categories">
+    <a href="/categories/iOS/">iOS</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/GCD/">GCD</a>
+  </div>
+
+        <div class="bdsharebuttonbox"><a href="#" class="bds_more" data-cmd="more"></a><a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a><a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a><a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a><a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a><a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a></div>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"1","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<section id="comment">
+
+</section>
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:ioser.cc">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/git/">git</a><small>3</small></li>
+  
+    <li><a href="/categories/iOS/">iOS</a><small>11</small></li>
+  
+    <li><a href="/categories/生活/">生活</a><small>3</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">标签</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/GCD/">GCD</a><small>2</small></li>
+  
+    <li><a href="/tags/NSOperation/">NSOperation</a><small>2</small></li>
+  
+    <li><a href="/tags/NSOperation-WWDC-NSOperationQueue/">NSOperation WWDC NSOperationQueue</a><small>1</small></li>
+  
+    <li><a href="/tags/NSOperationQueue-NSOperation/">NSOperationQueue NSOperation</a><small>1</small></li>
+  
+    <li><a href="/tags/NSRunLoop/">NSRunLoop</a><small>1</small></li>
+  
+    <li><a href="/tags/NSTimer/">NSTimer</a><small>1</small></li>
+  
+    <li><a href="/tags/UIView-AutoLayout/">UIView AutoLayout</a><small>1</small></li>
+  
+    <li><a href="/tags/git/">git</a><small>3</small></li>
+  
+    <li><a href="/tags/iOS7/">iOS7</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  <iframe width="100%" height="550" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=1&ptype=0&speed=0&skin=5&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=1732353090&verifier=eb816cbb&dpc=1"></iframe>
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2014 yaozhuoyu
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>
