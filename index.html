@@ -1,0 +1,515 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>ioser</title>
+  <meta name="author" content="yaozhuoyu">
+  
+  <meta name="description" content="yaozhuoyu’s Blog for iOS">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+  <meta property="og:site_name" content="ioser"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="ioser" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">ioser</a></h1>
+  <h2><a href="/">记录iOS点点滴滴</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper">
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2014-10-16T15:48:21.000Z"><a href="/2014/10/16/hello-world/">2014-10-16</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2014/10/16/hello-world/">Hello World</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>Welcome to <a href="http://hexo.io/" target="_blank" rel="external">Hexo</a>! This is your very first post. Check <a href="http://hexo.io/docs/" target="_blank" rel="external">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="http://hexo.io/docs/troubleshooting.html" target="_blank" rel="external">trobuleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="external">GitHub</a>.</p>
+<h2 id="Quick_Start">Quick Start</h2>
+<h3 id="Create_a_new_post">Create a new post</h3>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo new <span class="string">"My New Post"</span></div></pre></td></tr></table></figure>
+
+<p>More info: <a href="http://hexo.io/docs/writing.html" target="_blank" rel="external">Writing</a></p>
+<h3 id="Run_server">Run server</h3>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo server</div></pre></td></tr></table></figure>
+
+<p>More info: <a href="http://hexo.io/docs/server.html" target="_blank" rel="external">Server</a></p>
+<h3 id="Generate_static_files">Generate static files</h3>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo generate</div></pre></td></tr></table></figure>
+
+<p>More info: <a href="http://hexo.io/docs/generating.html" target="_blank" rel="external">Generating</a></p>
+<h3 id="Deploy_to_remote_sites">Deploy to remote sites</h3>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo deploy</div></pre></td></tr></table></figure>
+
+<p>More info: <a href="http://hexo.io/docs/deployment.html" target="_blank" rel="external">Deployment</a></p>
+<h3 id="sync">sync</h3>
+<p>sync</p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2014-01-11T16:00:00.000Z"><a href="/2014/01/12/guan-yu-cgcontextsavegstate-slash-cgcontextrestoregstate-he-uigraphicspushcontext-slash-uigraphicspopcontext/">2014-01-12</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2014/01/12/guan-yu-cgcontextsavegstate-slash-cgcontextrestoregstate-he-uigraphicspushcontext-slash-uigraphicspopcontext/"></a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <hr>
+<p>layout: post<br>title: 关于CGContextSaveGState/<br>CGContextRestoreGState 和 UIGraphicsPushContext/<br>UIGraphicsPopContext<br>date: 2014-01-12 23:20<br>comments: true</p>
+<h2 id="categories:_iOS">categories: iOS</h2>
+<p>在iOS绘图开发中，经常会看到成对的函数CGContextSaveGState/CGContextRestoreGState 和 UIGraphicsPushContext/UIGraphicsPopContext出现，一些初学者容易把这两对函数弄混淆。所以决定写一篇文章把其总结一下，高手可以略过。。</p>
+<p>
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2014/01/12/guan-yu-cgcontextsavegstate-slash-cgcontextrestoregstate-he-uigraphicspushcontext-slash-uigraphicspopcontext/#more" class="more-link">Read More</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2014-01-05T15:31:00.000Z"><a href="/2014/01/05/xin-de-zheng-cheng/">2014-01-05</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2014/01/05/xin-de-zheng-cheng/">新的征程</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>转眼间已经到2014年了，有半个多月没写点东西了。最近很忙，但是觉得在忙也应该坚持每周有一到两篇自己的博文。以后一定要坚持。</p>
+<p>2013年自己学到了很多很多，但是还有很多不太熟悉，比如core data，sqlite，等等。希望自己在新的一年技术更进一步！加油。</p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-12-05T03:47:00.000Z"><a href="/2013/12/05/iosying-yong-zhi-jian-tiao-zhuan-ju-li/">2013-12-05</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/12/05/iosying-yong-zhi-jian-tiao-zhuan-ju-li/">iOS应用之间跳转举例</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>最近好久没有写文章了。这两天在研究iOS中app之间的跳转，发现网上虽然很多资料，但是都没有详细的举例子，今天打算讲讲。</p>
+
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2013/12/05/iosying-yong-zhi-jian-tiao-zhuan-ju-li/#more" class="more-link">Read More</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-11-12T13:11:00.000Z"><a href="/2013/11/12/guan-yu-dispatch-sources/">2013-11-12</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/11/12/guan-yu-dispatch-sources/">关于Dispatch Sources</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>dispatch source是一个基本数据类型，它用来协调处理low-level的系统事件，其中包括timer dispatch source，signal dispatch source，descriptor sources，process dispatch source，Mach port dispatch source，custom dispatch sources。</p>
+<p>当配置一个dispatch source的时候，我们需要指定监控事件的类型，当事件发生时要执行的block code，已经执行code的queue，当一个监控的事件发生时，dispatch source提交block到指定的dispatch queue去执行。dispatch source会retain住其相关联的dispatch queue，阻止其被过早的被release。</p>
+<p>为了防止事件在dispatch queue中积压，dispatch sources实现了一个事件聚合机制(event coalescing scheme)，如果一个事件在上一个事件还没有开始处理之前到达，dispatch source会聚合两次事件的data。根据事件的类型，聚合可能是代替旧的事件或者时更新信息。</p>
+<p>下面将详细说明Dispatch Sources。<br>
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2013/11/12/guan-yu-dispatch-sources/#more" class="more-link">Read More</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-11-11T13:21:00.000Z"><a href="/2013/11/11/guan-yu-gcdde-li-zi/">2013-11-11</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/11/11/guan-yu-gcdde-li-zi/">关于GCD的例子</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>在iOS开发中，相信很多人都用过gcd，关于gcd的概念以及具体用法网上有很多可以看的资料，方便学习。但是，gcd中包含很多函数，其中有一些我们不常见的函数、概念，本篇文章主要对这一部分内容做分析。<br>
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2013/11/11/guan-yu-gcdde-li-zi/#more" class="more-link">Read More</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-11-05T05:09:00.000Z"><a href="/2013/11/05/guan-yu-nsrunloopde-ji-ge-li-zi/">2013-11-05</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/11/05/guan-yu-nsrunloopde-ji-ge-li-zi/">关于NSRunLoop的几个例子</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>关于NSRunLoop，在一般的开发中我们很少用到，相对底层的类。网上介绍NSRunLoop的文章也很多，但是大部分都是摘抄和翻译官网文档的，晦涩难懂，并且也没有例子。所以本篇文章主要是以例子为基础，详细介绍NSRunLoop的每一个细节，关于NSRunLoop的基本概念在此就不再讨论了，如果不了解的可以参考其他的文章，或者官方文档<a href="https://developer.apple.com/library/mac/documentation/cocoa/Conceptual/Multithreading/RunLoopManagement/RunLoopManagement.html" target="_blank" rel="external">链接</a>。<br>
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2013/11/05/guan-yu-nsrunloopde-ji-ge-li-zi/#more" class="more-link">Read More</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-11-04T06:49:00.000Z"><a href="/2013/11/04/guan-yu-nstimer/">2013-11-04</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/11/04/guan-yu-nstimer/">关于NSTimer</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>NSTimer是我们经常使用的一个类，相信大家都使用过。但是NSTimer在使用的时候有很多小陷进，以及我们没有考虑到的问题，所以决定用此篇文章记录在使用中遇到的问题。<br>
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2013/11/04/guan-yu-nstimer/#more" class="more-link">Read More</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-11-01T11:59:00.000Z"><a href="/2013/11/01/building-concurrent-user-interfaces-on-ios-zong-jie/">2013-11-01</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/11/01/building-concurrent-user-interfaces-on-ios-zong-jie/">Building Concurrent User Interfaces on iOS 总结</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>今天抽了一点时间看了WWDC 2012中的一集视频 — Building Concurrent User Interfaces on iOS，觉得很有用，在此总结一下。</p>
+<p>全文主要解决了一个问题，如何让tableview滚动起来更流畅。如何解决呢？通过将繁重的绘制工作从主线程提出来，放在其他线程做，而解放主线程。文字表达不好，来看代码吧。<br>
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2013/11/01/building-concurrent-user-interfaces-on-ios-zong-jie/#more" class="more-link">Read More</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-10-31T12:12:00.000Z"><a href="/2013/10/31/nsoperationshen-ru-yan-jiu/">2013-10-31</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/10/31/nsoperationshen-ru-yan-jiu/">NSOperation深入研究</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>这篇文章是<a href="http://www.yuzhongleixueren.com/blog/2013/10/31/ru-he-shi-yong-nsoperation/" target="_blank" rel="external">如何使用NSOpertion</a>的后续，将详细深入的总结NSOperation。<br>
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2013/10/31/nsoperationshen-ru-yan-jiu/#more" class="more-link">Read More</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+
+<nav id="pagination">
+  
+  
+    <a href="/page/2/" class="alignright next">下一页</a>
+  
+  <div class="clearfix"></div>
+</nav></div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:ioser.cc">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/git/">git</a><small>3</small></li>
+  
+    <li><a href="/categories/iOS/">iOS</a><small>10</small></li>
+  
+    <li><a href="/categories/生活/">生活</a><small>2</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">标签</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/GCD/">GCD</a><small>2</small></li>
+  
+    <li><a href="/tags/NSOperation/">NSOperation</a><small>2</small></li>
+  
+    <li><a href="/tags/NSOperation-WWDC-NSOperationQueue/">NSOperation WWDC NSOperationQueue</a><small>1</small></li>
+  
+    <li><a href="/tags/NSOperationQueue-NSOperation/">NSOperationQueue NSOperation</a><small>1</small></li>
+  
+    <li><a href="/tags/NSRunLoop/">NSRunLoop</a><small>1</small></li>
+  
+    <li><a href="/tags/NSTimer/">NSTimer</a><small>1</small></li>
+  
+    <li><a href="/tags/UIView-AutoLayout/">UIView AutoLayout</a><small>1</small></li>
+  
+    <li><a href="/tags/git/">git</a><small>3</small></li>
+  
+    <li><a href="/tags/iOS7/">iOS7</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  <iframe width="100%" height="550" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=1&ptype=0&speed=0&skin=5&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=1732353090&verifier=eb816cbb&dpc=1"></iframe>
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2014 yaozhuoyu
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>

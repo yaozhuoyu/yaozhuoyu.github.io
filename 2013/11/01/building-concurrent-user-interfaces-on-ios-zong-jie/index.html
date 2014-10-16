@@ -1,0 +1,211 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Building Concurrent User Interfaces on iOS 总结 | ioser</title>
+  <meta name="author" content="yaozhuoyu">
+  
+  <meta name="description" content="yaozhuoyu’s Blog for iOS">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="Building Concurrent User Interfaces on iOS 总结"/>
+  <meta property="og:site_name" content="ioser"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="ioser" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">ioser</a></h1>
+  <h2><a href="/">记录iOS点点滴滴</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-11-01T11:59:00.000Z"><a href="/2013/11/01/building-concurrent-user-interfaces-on-ios-zong-jie/">2013-11-01</a></time>
+      
+      
+  
+    <h1 class="title">Building Concurrent User Interfaces on iOS 总结</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>今天抽了一点时间看了WWDC 2012中的一集视频 — Building Concurrent User Interfaces on iOS，觉得很有用，在此总结一下。</p>
+<p>全文主要解决了一个问题，如何让tableview滚动起来更流畅。如何解决呢？通过将繁重的绘制工作从主线程提出来，放在其他线程做，而解放主线程。文字表达不好，来看代码吧。<br><a id="more"></a></p>
+<figure class="highlight objective-c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">- (void)tableView:(UITableView *)tableView didEndDisplayingCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath{</div><div class="line">    NSString *stockName = <span class="string">[[_stocks objectAtIndex:[indexPath row]]</span> name];</div><div class="line">    NSOperation *operation = [_stockNamesToRenderingOperations objectForKey:stockName];</div><div class="line">    <span class="keyword">if</span> (operation) {</div><div class="line">        [operation cancel];</div><div class="line">        [_stockNamesToRenderingOperations removeObjectForKey:stockName];</div><div class="line">    }</div><div class="line">}</div><div class="line"></div><div class="line">- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {</div><div class="line">    static NSString *CellIdentifier = @<span class="string">"Cell"</span>;</div><div class="line">    </div><div class="line">    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];</div><div class="line">    <span class="keyword">if</span> (!cell) {</div><div class="line">        cell = <span class="string">[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];</span></div><div class="line">    }</div><div class="line">    </div><div class="line">    CRStock *stock = [_stocks objectAtIndex:[indexPath row]];</div><div class="line">    </div><div class="line">    CRStockRenderer *renderer = [_stockNamesToRenderers objectForKey:[stock name]];</div><div class="line">    <span class="keyword">if</span> ([renderer hasRendered]) {</div><div class="line">        <span class="string">[[cell imageView] setImage:[renderer renderedGraphOfSize:ROW_IMAGE_SIZE]]</span>;</div><div class="line">    }<span class="keyword">else</span>{</div><div class="line">        <span class="keyword">if</span> (!renderer) {</div><div class="line">            renderer = <span class="string">[[CRStockRenderer alloc] initWithStock:stock];</span></div><div class="line">            [_stockNamesToRenderers setObject:renderer forKey:[stock name]];</div><div class="line">            </div><div class="line">            NSBlockOperation *operation = [NSBlockOperation blockOperationWithBlock:^{</div><div class="line">                UIImage *renderedImage = [renderer renderedGraphOfSize:ROW_IMAGE_SIZE];</div><div class="line">                <span class="string">[[NSOperationQueue mainQueue] addOperationWithBlock:^{</span></div><div class="line">                    [[[tableView cellForRowAtIndexPath:indexPath] imageView] setImage:renderedImage];</div><div class="line">                }];</div><div class="line">            }];</div><div class="line">            [_queue addOperation:operation];</div><div class="line">            [_stockNamesToRenderingOperations setObject:operation forKey:[stock name]];</div><div class="line">        }</div><div class="line">        [[cell imageView] setImage:[renderer placeholderImageOfSize:ROW_IMAGE_SIZE]];</div><div class="line">    }</div><div class="line">    </div><div class="line">    return cell;</div><div class="line">}</div><div class="line"></div><div class="line">- (void)viewDidDisappear:(BOOL)animated{</div><div class="line">    [super viewDidDisappear:animated];</div><div class="line">    [_queue cancelAllOperations];</div><div class="line">}</div></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight objective-c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">CRStockRenderer</span> : <span class="title">NSObject</span></span>{</div><div class="line">    <span class="built_in">UIImage</span> *_renderedGraph;</div><div class="line">}</div><div class="line">- (<span class="built_in">UIImage</span> *)renderedGraphOfSize:(<span class="built_in">CGSize</span>)desiredSize;</div><div class="line"><span class="keyword">@end</span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">CRStockRenderer</span></span></div><div class="line">- (<span class="built_in">UIImage</span> *)renderedGraphOfSize:(<span class="built_in">CGSize</span>)desiredSize{</div><div class="line">    <span class="keyword">if</span> (_renderedGraph)</div><div class="line">        <span class="keyword">return</span> _renderedGraph;</div><div class="line">    </div><div class="line">    UIGraphicsBeginImageContextWithOptions(desiredSize, <span class="literal">NO</span>, <span class="number">0.0</span>f);</div><div class="line">    </div><div class="line">    <span class="comment">//do a lot work</span></div><div class="line">    </div><div class="line">    _renderedGraph = UIGraphicsGetImageFromCurrentImageContext();</div><div class="line">    UIGraphicsEndImageContext();</div><div class="line">    </div><div class="line">    <span class="keyword">return</span> _renderedGraph;</div><div class="line">}</div><div class="line"></div><div class="line">- (<span class="built_in">BOOL</span>)hasRendered{</div><div class="line">    <span class="keyword">return</span> _renderedGraph != <span class="literal">nil</span>;</div><div class="line">}</div><div class="line"></div><div class="line"><span class="keyword">@end</span></div></pre></td></tr></table></figure>
+
+<p>如果对NSOperationQueue和NSOperation了解的话，上面的代码很容易理解了。</p>
+
+      
+    </div>
+    <footer>
+      
+        
+  
+  <div class="categories">
+    <a href="/categories/iOS/">iOS</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/NSOperation-WWDC-NSOperationQueue/">NSOperation WWDC NSOperationQueue</a>
+  </div>
+
+        
+  <div class="addthis addthis_toolbox addthis_default_style">
+    
+      <a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
+    
+    
+      <a class="addthis_button_tweet"></a>
+    
+    
+      <a class="addthis_button_google_plusone" g:plusone:size="medium"></a>
+    
+    
+      <a class="addthis_button_pinterest_pinit" pi:pinit:layout="horizontal"></a>
+    
+    <a class="addthis_counter addthis_pill_style"></a>
+  </div>
+  <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js"></script>
+
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<section id="comment">
+  <h1 class="title">留言</h1>
+
+  
+      <div id="fb-root"></div>
+<script>
+  (function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=123456789012345";
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));
+</script>
+
+<div class="fb-comments" data-href="http://ioser.cc/2013/11/01/building-concurrent-user-interfaces-on-ios-zong-jie/" data-num-posts="5" data-width="840" data-colorscheme="light"></div>
+      
+  
+</section>
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:ioser.cc">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/git/">git</a><small>3</small></li>
+  
+    <li><a href="/categories/iOS/">iOS</a><small>10</small></li>
+  
+    <li><a href="/categories/生活/">生活</a><small>2</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">标签</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/GCD/">GCD</a><small>2</small></li>
+  
+    <li><a href="/tags/NSOperation/">NSOperation</a><small>2</small></li>
+  
+    <li><a href="/tags/NSOperation-WWDC-NSOperationQueue/">NSOperation WWDC NSOperationQueue</a><small>1</small></li>
+  
+    <li><a href="/tags/NSOperationQueue-NSOperation/">NSOperationQueue NSOperation</a><small>1</small></li>
+  
+    <li><a href="/tags/NSRunLoop/">NSRunLoop</a><small>1</small></li>
+  
+    <li><a href="/tags/NSTimer/">NSTimer</a><small>1</small></li>
+  
+    <li><a href="/tags/UIView-AutoLayout/">UIView AutoLayout</a><small>1</small></li>
+  
+    <li><a href="/tags/git/">git</a><small>3</small></li>
+  
+    <li><a href="/tags/iOS7/">iOS7</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  <iframe width="100%" height="550" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=1&ptype=0&speed=0&skin=5&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=1732353090&verifier=eb816cbb&dpc=1"></iframe>
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2014 yaozhuoyu
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>
