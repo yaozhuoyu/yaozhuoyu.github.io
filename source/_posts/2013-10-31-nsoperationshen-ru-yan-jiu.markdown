@@ -6,7 +6,7 @@ comments: true
 categories: iOS
 tags: NSOperation
 ---
-这篇文章是[如何使用NSOpertion](http://www.yuzhongleixueren.com/blog/2013/10/31/ru-he-shi-yong-nsoperation/)的后续，将详细深入的总结NSOperation。
+这篇文章是[如何使用NSOpertion](/2013/10/31/ru-he-shi-yong-nsoperation/)的后续，将详细深入的总结NSOperation。
 <!--more-->
 
 ##1.自定义operation对象的执行行为

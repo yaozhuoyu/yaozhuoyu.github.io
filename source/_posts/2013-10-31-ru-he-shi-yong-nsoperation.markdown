@@ -7,7 +7,7 @@ categories: iOS
 tags: NSOperation
 ---
 
-我们知道，NSOperation是一个抽象类，在使用的时候我们不能直接创建它，而是要使用NSOperation的子类，系统已经为我们提供了两个现成的子类`NSInvocationOperation`和`NSBlockOperation`方便我们使用，当然我们也可以自定义NSOperation的子类，本篇文章详细讲述这三种方法，如果对NSOperation不了解的，可以参考另一篇文章[NSOperationQueue and NSOperation](http://www.yuzhongleixueren.com/blog/2013/10/29/nsoperationqueue-and-nsoperation/)。
+我们知道，NSOperation是一个抽象类，在使用的时候我们不能直接创建它，而是要使用NSOperation的子类，系统已经为我们提供了两个现成的子类`NSInvocationOperation`和`NSBlockOperation`方便我们使用，当然我们也可以自定义NSOperation的子类，本篇文章详细讲述这三种方法，如果对NSOperation不了解的，可以参考另一篇文章[NSOperationQueue and NSOperation](/2013/10/29/nsoperationqueue-and-nsoperation/)。
 <!--more-->
 
 ##1.NSInvocationOperation
