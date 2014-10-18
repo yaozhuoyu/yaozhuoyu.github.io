@@ -60,7 +60,7 @@
     </header>
     <div class="entry">
       
-        <p>我们知道，NSOperation是一个抽象类，在使用的时候我们不能直接创建它，而是要使用NSOperation的子类，系统已经为我们提供了两个现成的子类<code>NSInvocationOperation</code>和<code>NSBlockOperation</code>方便我们使用，当然我们也可以自定义NSOperation的子类，本篇文章详细讲述这三种方法，如果对NSOperation不了解的，可以参考另一篇文章<a href="http://www.yuzhongleixueren.com/blog/2013/10/29/nsoperationqueue-and-nsoperation/" target="_blank" rel="external">NSOperationQueue and NSOperation</a>。<br><a id="more"></a></p>
+        <p>我们知道，NSOperation是一个抽象类，在使用的时候我们不能直接创建它，而是要使用NSOperation的子类，系统已经为我们提供了两个现成的子类<code>NSInvocationOperation</code>和<code>NSBlockOperation</code>方便我们使用，当然我们也可以自定义NSOperation的子类，本篇文章详细讲述这三种方法，如果对NSOperation不了解的，可以参考另一篇文章<a href="/2013/10/29/nsoperationqueue-and-nsoperation/">NSOperationQueue and NSOperation</a>。<br><a id="more"></a></p>
 <h2 id="1-NSInvocationOperation">1.NSInvocationOperation</h2>
 <p>NSInvocationOperation是NSOperation的一个子类，它将一个具体的invocation(NSInvocation类的对象)封装成一个任务去执行，我们也可以用一个对象和对象里的一个方法(selector)去初始化operation。NSInvocationOperation是一个non-current operation。<br>通过上面我们可以知道，NSInvocationOperation有两个初始化方法：</p>
 <figure class="highlight objective-c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="pp">- <span class="params">(id)</span>initWithInvocation:<span class="params">(<span class="variable">NSInvocation</span> *)</span>inv</span></div><div class="line">- <span class="params">(id)</span>initWithTarget:<span class="params">(id)</span>target selector:<span class="params">(<span class="variable">SEL</span>)</span>sel object:<span class="params">(id)</span>arg</div></pre></td></tr></table></figure>
@@ -151,7 +151,10 @@
 
 
 <section id="comment">
-
+<!-- UY BEGIN -->
+<div id="uyan_frame"></div>
+<script type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=1853813"></script>
+<!-- UY END -->
 </section>
 
 </div></div>
@@ -167,6 +170,8 @@
 <div class="widget tag">
   <h3 class="title">分类</h3>
   <ul class="entry">
+  
+    <li><a href="/categories/Swift/">Swift</a><small>1</small></li>
   
     <li><a href="/categories/git/">git</a><small>3</small></li>
   
@@ -195,7 +200,11 @@
   
     <li><a href="/tags/NSTimer/">NSTimer</a><small>1</small></li>
   
+    <li><a href="/tags/Swift/">Swift</a><small>1</small></li>
+  
     <li><a href="/tags/UIView-AutoLayout/">UIView AutoLayout</a><small>1</small></li>
+  
+    <li><a href="/tags/function/">function</a><small>1</small></li>
   
     <li><a href="/tags/git/">git</a><small>3</small></li>
   
@@ -215,7 +224,7 @@
   
 </div>
 <div class="clearfix"></div></footer>
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+  <script src="//libs.baidu.com/jquery/2.0.3/jquery.min.js"></script>
 <script src="/js/jquery.imagesloaded.min.js"></script>
 <script src="/js/gallery.js"></script>
 

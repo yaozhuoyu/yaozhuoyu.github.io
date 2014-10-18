@@ -1,0 +1,248 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Swift会调用哪个函数？ | ioser</title>
+  <meta name="author" content="yaozhuoyu">
+  
+  <meta name="description" content="yaozhuoyu’s Blog for iOS">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="Swift会调用哪个函数？"/>
+  <meta property="og:site_name" content="ioser"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="ioser" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">ioser</a></h1>
+  <h2><a href="/">记录iOS点点滴滴</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2014-10-17T10:09:09.000Z"><a href="/2014/10/17/which-func-call-swift/">2014-10-17</a></time>
+      
+      
+  
+    <h1 class="title">Swift会调用哪个函数？</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>我们Swift中的函数是做为一等公民的身份出现的，因为其功能极其强大，但是功能的强大注定为其带来复杂，本文接下来主要详细的探讨当有多个函数选择的时候，Swift会去调用哪个函数。<br><a id="more"></a></p>
+<p>我们知道，Swift中运算符<code>...</code>是有三个定义的：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/// Returns a closed interval from `start` through `end`</span></div><div class="line"><span class="func"><span class="keyword">func</span></span> ...&lt;<span class="type">T</span> : <span class="type">Comparable</span>&gt;(start: <span class="type">T</span>, end: <span class="type">T</span>) -&gt; <span class="type">ClosedInterval</span>&lt;<span class="type">T</span>&gt;</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment">/// Forms a closed range that contains both `minimum` and `maximum`.</span></div><div class="line"><span class="func"><span class="keyword">func</span></span> ...&lt;<span class="type">Pos</span> : <span class="type">ForwardIndexType</span>&gt;(minimum: <span class="type">Pos</span>, maximum: <span class="type">Pos</span>) -&gt; <span class="type">Range</span>&lt;<span class="type">Pos</span>&gt;</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment">/// Forms a closed range that contains both `start` and `end`.</span></div><div class="line"><span class="comment">/// Requres: `start &lt;= end`</span></div><div class="line"><span class="func"><span class="keyword">func</span></span> ...&lt;<span class="type">Pos</span> : <span class="type">ForwardIndexType</span> <span class="keyword">where</span> <span class="type">Pos</span> : <span class="type">Comparable</span>&gt;(start: <span class="type">Pos</span>, end: <span class="type">Pos</span>) -&gt; <span class="type">Range</span>&lt;<span class="type">Pos</span>&gt;</div></pre></td></tr></table></figure>
+
+<p>当我们写语句<code>let r = 1...5</code>的时候，Swift选择最后一个函数调用，我们会得到一个<code>Range</code>，Swift是为何这样选择呢？</p>
+<h2 id="Differing_Return_Values">Differing Return Values</h2>
+<p>在Swift中，我们是不能声明两个完全相同的函数的：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="func"><span class="keyword">func</span></span> f() {  }</div><div class="line"> </div><div class="line"><span class="comment">// error: Invalid redeclaration of f()</span></div><div class="line"><span class="func"><span class="keyword">func</span></span> f() {  }</div></pre></td></tr></table></figure>
+
+<p>但是和其他语言不一样，我们可以在Swift中定义参数和名字都相同但是返回值不同的函数，如下是合法的：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">struct</span> <span class="title">A</span> </span>{ }</div><div class="line"><span class="class"><span class="keyword">struct</span> <span class="title">B</span> </span>{ }</div><div class="line"> </div><div class="line"><span class="func"><span class="keyword">func</span></span> f() -&gt; <span class="type">A</span> { <span class="keyword">return</span> <span class="type">A</span>() }</div><div class="line"> </div><div class="line"><span class="comment">// this second f is fine, even though it only differs</span></div><div class="line"><span class="comment">// by what it returns:</span></div><div class="line"><span class="func"><span class="keyword">func</span></span> f() -&gt; <span class="type">B</span> { <span class="keyword">return</span> <span class="type">B</span>() } </div><div class="line"> </div><div class="line"><span class="comment">// note, typealiases are just aliases not different types,</span></div><div class="line"><span class="comment">// so you can't do this:</span></div><div class="line"><span class="keyword">typealias</span> <span class="type">L</span> = <span class="type">A</span></div><div class="line"><span class="comment">// error: Invalid redeclaration of 'f()'</span></div><div class="line"><span class="func"><span class="keyword">func</span></span> f() -&gt; <span class="type">L</span> { <span class="keyword">return</span> <span class="type">A</span>() }</div></pre></td></tr></table></figure>
+
+<p>当我们在调用这样的函数的时候，我们要给Swift提供足够的信息，不让其产生歧义，如下：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// error: Ambiguous use of 'f'</span></div><div class="line"><span class="keyword">let</span> x = f()</div><div class="line"> </div><div class="line"><span class="comment">// instead you must specify which return value you want:</span></div><div class="line"><span class="keyword">let</span> x: <span class="type">A</span> = f()    <span class="comment">// calls the A-returning version</span></div><div class="line">                  <span class="comment">// x is of type A</span></div><div class="line"> </div><div class="line"><span class="comment">// or if you prefer this syntax:</span></div><div class="line"><span class="keyword">let</span> y = f() <span class="keyword">as</span> <span class="type">B</span>  <span class="comment">// calls the B-returning version</span></div><div class="line">                  <span class="comment">// y is of type B</span></div><div class="line"> </div><div class="line"><span class="comment">// or, maybe you're passing it in as the argument to a function:</span></div><div class="line"><span class="func"><span class="keyword">func</span></span> takesA(a: <span class="type">A</span>) { }</div><div class="line"> </div><div class="line"><span class="comment">// the A-returning version of f will be called</span></div><div class="line">takesA(f())</div></pre></td></tr></table></figure>
+
+<p>如果我们想声明一个变量引用函数f，我们需要指定完整的类型：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// g will be a reference to the A-returning version</span></div><div class="line"><span class="keyword">let</span> g: ()-&gt;<span class="type">A</span> = f</div><div class="line"> </div><div class="line"><span class="comment">// h will be a reference to the B-returning version</span></div><div class="line"><span class="keyword">let</span> h = f <span class="keyword">as</span> ()-&gt;<span class="type">B</span></div><div class="line"> </div><div class="line"><span class="comment">// calling g doesn't need further info, it references </span></div><div class="line"><span class="comment">// a specific f, and z will be of type A:</span></div><div class="line"><span class="keyword">let</span> z = g()</div></pre></td></tr></table></figure>
+
+<p>OK，现在我们在回过头看<code>...</code>运算符，它会返回<code>ClosedInterval</code>或者<code>Range</code>，对于<code>let r = 1...5</code>没有声r的类型，却得到<code>Range</code>类型的返回值？</p>
+<p>为了回答这个问题，我们需要看函数的参数，我们从单个参数的函数开始。</p>
+<h2 id="Single_Arguments">Single Arguments</h2>
+<p>和返回值不同，如果相同函数名的函数的参数不同，Swift会自动的帮我们选择最好的匹配，然后调用。<br>做为一个经验法则，Swift总是挑选最”具体”的函数，Swift喜欢那些有精确类型的函数。<br>如果不能找到精确类型匹配的函数，接下来的首选方案是继承的类或者协议，子类或者子协议优先于父类和父协议。</p>
+<p>如下例子：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">P</span> </span>{ }</div><div class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">Q</span>: <span class="title">P</span> </span>{ }</div><div class="line"> </div><div class="line"><span class="class"><span class="keyword">struct</span> <span class="title">S</span>: <span class="title">Q</span> </span>{ }</div><div class="line"> </div><div class="line"><span class="comment">// this is the function that will be picked</span></div><div class="line"><span class="comment">// if called with type S</span></div><div class="line"><span class="func"><span class="keyword">func</span></span> f(s: <span class="type">S</span>) { <span class="built_in">print</span>(<span class="string">"S"</span>) }</div><div class="line"> </div><div class="line"><span class="comment">// if that weren't defined, this would be the next</span></div><div class="line"><span class="comment">// choice for a call passing in an S, since Q is</span></div><div class="line"><span class="comment">// more specialized than P:</span></div><div class="line"><span class="func"><span class="keyword">func</span></span> f(p: <span class="type">Q</span>) { <span class="built_in">print</span>(<span class="string">"Q"</span>) }</div><div class="line"> </div><div class="line"><span class="comment">// and then finally this</span></div><div class="line"><span class="func"><span class="keyword">func</span></span> f(p: <span class="type">P</span>) { <span class="built_in">print</span>(<span class="string">"P"</span>) }</div><div class="line"> </div><div class="line">f(<span class="type">S</span>())  <span class="comment">// prints S</span></div><div class="line"> </div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">C</span>: <span class="title">P</span> </span>{ }</div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">D</span>: <span class="title">C</span> </span>{ }</div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">E</span>: <span class="title">D</span> </span>{ }</div><div class="line"> </div><div class="line"><span class="comment">// this is the function that will be picked</span></div><div class="line"><span class="func"><span class="keyword">func</span></span> f(d: <span class="type">D</span>) { <span class="built_in">print</span>(<span class="string">"D"</span>) }</div><div class="line"> </div><div class="line"><span class="comment">// if that weren't defined, this would be the next choice</span></div><div class="line"><span class="func"><span class="keyword">func</span></span> f(<span class="built_in">c</span>: <span class="type">C</span>) { <span class="built_in">print</span>(<span class="string">"C"</span>) }</div><div class="line"> </div><div class="line"><span class="comment">// if neither were defined, the version above for the </span></div><div class="line"><span class="comment">// protocol P would be called</span></div><div class="line"> </div><div class="line">f(<span class="type">E</span>())  <span class="comment">// prints D</span></div></pre></td></tr></table></figure>
+
+<p>这看起来很像多态，但是我们要知道，这不是多态，函数的选择是在编译的时候就确定的。</p>
+<h2 id="Overloaded_functions_are_chosen_at_compile_time">Overloaded functions are chosen at compile time</h2>
+<p>在上面的所有情况里，函数调用的确定都是静态非动态的，都是在编译期而非运行期。这表达的意思就是函数调用的确定根据的是变量的类型而不是变量所指的类型。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">C</span> </span>{ }</div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">D</span>: <span class="title">C</span> </span>{ }</div><div class="line"> </div><div class="line"><span class="comment">// function that takes the base class</span></div><div class="line"><span class="func"><span class="keyword">func</span></span> f(<span class="built_in">c</span>: <span class="type">C</span>) { <span class="built_in">print</span>(<span class="string">"C"</span>) }</div><div class="line"><span class="comment">// function that takes the child class</span></div><div class="line"><span class="func"><span class="keyword">func</span></span> f(d: <span class="type">D</span>) { <span class="built_in">print</span>(<span class="string">"D"</span>) }</div><div class="line"> </div><div class="line"><span class="comment">// the object x references is of type D,</span></div><div class="line"><span class="comment">// but x is of type C</span></div><div class="line"><span class="keyword">let</span> x: <span class="type">C</span> = <span class="type">D</span>()</div><div class="line"> </div><div class="line"><span class="comment">// which function to call is determined by the</span></div><div class="line"><span class="comment">// type of x, and not what it points to</span></div><div class="line">f(x)    <span class="comment">// Prints "C" _not_ "D"</span></div><div class="line"> </div><div class="line"><span class="comment">// the same goes for protocols...</span></div><div class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">P</span> </span>{ }</div><div class="line"><span class="class"><span class="keyword">struct</span> <span class="title">S</span>: <span class="title">P</span> </span>{ }</div><div class="line"> </div><div class="line"><span class="func"><span class="keyword">func</span></span> f(s: <span class="type">S</span>) { <span class="built_in">print</span>(<span class="string">"S"</span>) }</div><div class="line"><span class="func"><span class="keyword">func</span></span> f(p: <span class="type">P</span>) { <span class="built_in">print</span>(<span class="string">"P"</span>) }</div><div class="line"> </div><div class="line"><span class="keyword">let</span> p: <span class="type">P</span> = <span class="type">S</span>()</div><div class="line"> </div><div class="line"><span class="comment">// despite p pointing to an object of type S,</span></div><div class="line"><span class="comment">// the version that takes a P will be called:</span></div><div class="line">f(p)    <span class="comment">// Prints "P" _not_ "S"</span></div></pre></td></tr></table></figure>
+
+<p>如果我们想要多态的效果，则应该用方法去替换函数，如下：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">C</span> </span>{</div><div class="line">    <span class="func"><span class="keyword">func</span></span> f() { <span class="built_in">print</span>(<span class="string">"C"</span>) }</div><div class="line">}</div><div class="line"> </div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">D</span>: <span class="title">C</span> </span>{</div><div class="line">    <span class="keyword">override</span> <span class="func"><span class="keyword">func</span></span> f() { <span class="built_in">print</span>(<span class="string">"D"</span>) }</div><div class="line">}</div><div class="line"> </div><div class="line"><span class="comment">// function that takes the child class</span></div><div class="line"> </div><div class="line"><span class="comment">// the object x references is of type D,</span></div><div class="line"><span class="comment">// but x is of type C:</span></div><div class="line"><span class="keyword">let</span> x: <span class="type">C</span> = <span class="type">D</span>()</div><div class="line"> </div><div class="line"><span class="comment">// which method to call is determined by </span></div><div class="line"><span class="comment">// what x points to, and not what type it is</span></div><div class="line">x.f()    <span class="comment">// Prints "D" _not_ "C"</span></div></pre></td></tr></table></figure>
+
+<p>另一种常见的例子是，我们可以重载采用不同协议的函数，在编译期检查协议的满足性，但是在调用方法的时候会有动态的行为，但是有一个缺点：</p>
+<h2 id="Functions_that_take_Protocols_can_be_ambiguous">Functions that take Protocols can be ambiguous</h2>
+<p>使用协议的时候，可能产生歧义：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">P</span> </span>{ }</div><div class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">Q</span> </span>{ }</div><div class="line"> </div><div class="line"><span class="class"><span class="keyword">struct</span> <span class="title">S</span>: <span class="title">P</span>, <span class="title">Q</span> </span>{ }</div><div class="line"><span class="keyword">let</span> s = <span class="type">S</span>()</div><div class="line"> </div><div class="line"><span class="func"><span class="keyword">func</span></span> f(p: <span class="type">P</span>) { <span class="built_in">print</span>(<span class="string">"P"</span>) }</div><div class="line"><span class="func"><span class="keyword">func</span></span> f(p: <span class="type">Q</span>) { <span class="built_in">print</span>(<span class="string">"Q"</span>) }</div><div class="line"> </div><div class="line"><span class="comment">// error: argument could be either a P or a Q</span></div><div class="line">f(s)</div><div class="line"> </div><div class="line"><span class="comment">// so you need to disambiguate, either:</span></div><div class="line">f(s <span class="keyword">as</span> <span class="type">P</span>)  <span class="comment">// prints P</span></div><div class="line"> </div><div class="line"><span class="comment">// or:</span></div><div class="line"><span class="keyword">let</span> q: <span class="type">Q</span> = <span class="type">S</span>()</div><div class="line">f(q)       <span class="comment">// prints Q</span></div><div class="line"> </div><div class="line"><span class="comment">// the same happens with classes vs protocols:</span></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">C</span>  </span>{ }</div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">D</span>: <span class="title">C</span>, <span class="title">P</span> </span>{ }</div><div class="line"> </div><div class="line"><span class="func"><span class="keyword">func</span></span> f(<span class="built_in">c</span>: <span class="type">C</span>) { <span class="built_in">print</span>(<span class="string">"C"</span>) }</div><div class="line"> </div><div class="line"><span class="comment">// error: argument could be either a C or a P</span></div><div class="line">f(<span class="type">D</span>())</div><div class="line"><span class="comment">// you must specify, either:</span></div><div class="line">f(<span class="type">D</span>() <span class="keyword">as</span> <span class="type">P</span>)</div><div class="line"><span class="comment">// or:</span></div><div class="line">f(<span class="type">D</span>() <span class="keyword">as</span> <span class="type">C</span>)</div></pre></td></tr></table></figure>
+
+<h2 id="Defaulting_to_ClosedInterval_for_Integers">Defaulting to ClosedInterval for Integers</h2>
+<p>因此，我们可以得出一个结论：采用strcut类型参数的函数是优先于采用protocol类型参数的函数，我们可以自定义写一个新的…运算符的函数，参数为struct(Int)类型，则其优先级将高于当前参数为protocols的函数版本(Comparable to create a ClosedInterval, 或者 ForwardIndex to create a Range)</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="func"><span class="keyword">func</span></span> ...(start: <span class="type">Int</span>, end: <span class="type">Int</span>) -&gt; <span class="type">ClosedInterval</span>&lt;<span class="type">Int</span>&gt; {</div><div class="line">    <span class="keyword">return</span> <span class="type">ClosedInterval</span>(start, end)</div><div class="line">}</div><div class="line"> </div><div class="line"><span class="comment">// x is now of type ClosedInterval</span></div><div class="line"><span class="keyword">let</span> x = <span class="number">1</span>...<span class="number">5</span></div></pre></td></tr></table></figure>
+
+<p>但是如果传入的参数类型是其他整数类型，我们仍然是得到一个Range:</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> i: <span class="type">Int32</span> = <span class="number">1</span>, j: <span class="type">Int32</span> = <span class="number">5</span></div><div class="line"> </div><div class="line"><span class="comment">// r will be of type Range still:</span></div><div class="line"><span class="keyword">let</span> r = i...j</div></pre></td></tr></table></figure>
+
+<p>但是这些还是没有解释最初的问题，为什么选择ranges而不是closed intervals。Comparable和ForwardIndex也没有继承关系。</p>
+<h2 id="Protocol_Composition">Protocol Composition</h2>
+<p>要知道 <code>1...5</code>选择返回Range而不是ClosedInterval的原因，我们首先要看看generics(泛型)是如何匹配的。</p>
+<p>在这之前，我们要引入protocol composition的概念。<br>Protocols可以有0个或者多个protocols合成，有&lt;&gt;包含起来。Protocol composition并不是定义了新的protocol类型，相反，他们只是定义了一个临时的本地协议，要求满足所有的协议要求。</p>
+<p>通过这个，我们可能想象声明protocol composition如<p,q>很像声明一个匿名的协议 Tmp:P,Q{}，然后使用Tmp不用给出名字。但是并不是完全这样，特别是当protocol composition作为函数参数的时候。</p,q></p>
+<p>首先，我们回顾一个正常protocol的行为，假定定义四个protocols，P,Q，和A，B，其中A，B满足协议P和Q：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">P</span> </span>{ }</div><div class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">Q</span> </span>{ }</div><div class="line"> </div><div class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">A</span>: <span class="title">P</span>, <span class="title">Q</span> </span>{ }</div><div class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">B</span>: <span class="title">P</span>, <span class="title">Q</span> </span>{ }</div></pre></td></tr></table></figure>
+
+<p>虽然A和B的功能相同，但是他们却是两个不同的protocols，这意味着我们可以写两个函数，一个把A作为参数，一个把B作为参数，这两个函数是不同的：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">struct</span> <span class="title">S</span>: <span class="title">A</span>, <span class="title">B</span> </span>{ }</div><div class="line"><span class="keyword">let</span> s = <span class="type">S</span>()</div><div class="line"> </div><div class="line"><span class="func"><span class="keyword">func</span></span> f(a: <span class="type">A</span>) {</div><div class="line">    <span class="built_in">print</span>(<span class="string">"A"</span>)</div><div class="line">}</div><div class="line"> </div><div class="line"><span class="func"><span class="keyword">func</span></span> f(b: <span class="type">B</span>) {</div><div class="line">    <span class="built_in">print</span>(<span class="string">"B"</span>)</div><div class="line">}</div><div class="line"> </div><div class="line"><span class="comment">// error: Ambiguous use of 'f'</span></div><div class="line">f(s)</div></pre></td></tr></table></figure>
+
+<p>但是如果我们使用protocol<p,q>代替B，我们就会得到不同的结果：</p,q></p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="func"><span class="keyword">func</span></span> g(a: <span class="type">A</span>) {</div><div class="line">    <span class="built_in">print</span>(<span class="string">"A"</span>)</div><div class="line">}</div><div class="line"> </div><div class="line"><span class="func"><span class="keyword">func</span></span> g(p: <span class="class"><span class="keyword">protocol</span>&lt;<span class="title">P</span>,<span class="title">Q</span>&gt;) </span>{</div><div class="line">    <span class="built_in">print</span>(<span class="string">"protocol&lt;P,Q&gt;"</span>)</div><div class="line">}</div><div class="line"> </div><div class="line"><span class="comment">// prints "A"</span></div><div class="line">g(s)</div></pre></td></tr></table></figure>
+
+<p>如果 protocol<p,q>真的是声明了一个匿名协议满足P和Q，则我们应该会得到和上面相同的错误。相反，protocol<p,q>的意思像是说“一个参数同时满足P和Q”。</p,q></p,q></p>
+<p>这里选择参数为A的g函数，因为A比P和Q更具体，这和我们上面总结的经验”Swift总是挑选最”具体”的函数”是一致的。</p>
+<p>另外一个更具体的情况是更多的协议，下面的例子说明了三个协议比两个协议更具体：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">R</span> </span>{ }</div><div class="line"><span class="class"><span class="keyword">extension</span> <span class="title">S</span>: <span class="title">R</span> </span>{ }</div><div class="line"> </div><div class="line"><span class="comment">// you can assign an alias for any</span></div><div class="line"><span class="comment">// protocol&lt;&gt; definition if you prefer</span></div><div class="line"><span class="keyword">typealias</span> <span class="type">Two</span> = <span class="class"><span class="keyword">protocol</span>&lt;<span class="title">P</span>,<span class="title">Q</span>&gt;</span></div><div class="line"><span class="title">typealias</span> <span class="title">Three</span> = <span class="title">protocol</span>&lt;<span class="title">P</span>,<span class="title">Q</span>,<span class="title">R</span>&gt;</div><div class="line"> </div><div class="line"><span class="title">func</span> <span class="title">h</span>(<span class="title">p</span>: <span class="title">Two</span>) {</div><div class="line">    <span class="built_in">print</span>(<span class="string">"Two"</span>)</div><div class="line">}</div><div class="line"> </div><div class="line"><span class="func"><span class="keyword">func</span></span> h(p: <span class="type">Three</span>) {</div><div class="line">    <span class="built_in">print</span>(<span class="string">"Three"</span>)</div><div class="line">}</div><div class="line"> </div><div class="line"><span class="comment">// prints "Three"</span></div><div class="line">h(s)</div><div class="line"> </div><div class="line"><span class="comment">// you can still force the other to be</span></div><div class="line"><span class="comment">// called if you want: this prints "Two"</span></div><div class="line">h(s <span class="keyword">as</span> <span class="type">Two</span>)</div></pre></td></tr></table></figure>
+
+<p>最后，如果要在继承协议和多个协议之间选择(即广度和深度)，Swift就无能为力了：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="func"><span class="keyword">func</span></span> o(p: <span class="class"><span class="keyword">protocol</span>&lt;<span class="title">A</span>,<span class="title">B</span>&gt;) </span>{</div><div class="line">    <span class="built_in">print</span>(<span class="string">"A and B"</span>)</div><div class="line">}</div><div class="line"> </div><div class="line"><span class="func"><span class="keyword">func</span></span> o(p: <span class="class"><span class="keyword">protocol</span>&lt;<span class="title">P</span>,<span class="title">Q</span>,<span class="title">R</span>&gt;) </span>{</div><div class="line">    <span class="built_in">print</span>(<span class="string">"P, Q and R"</span>)</div><div class="line">}</div><div class="line"> </div><div class="line"><span class="comment">// error: Ambiguous use of 'o'</span></div><div class="line">o(s)</div><div class="line"> </div><div class="line"><span class="comment">// prints "A and B"</span></div><div class="line">o(s <span class="keyword">as</span> <span class="class"><span class="keyword">protocol</span>&lt;<span class="title">A</span>,<span class="title">B</span>&gt;)</span></div><div class="line">// <span class="title">prints</span> "<span class="title">P</span>, <span class="title">Q</span> <span class="title">and</span> <span class="title">R</span>"</div><div class="line"><span class="title">o</span>(<span class="title">s</span> <span class="title">as</span> <span class="title">protocol</span>&lt;<span class="title">P</span>,<span class="title">Q</span>,<span class="title">R</span>&gt;)</div></pre></td></tr></table></figure>
+
+<p>因此，对于最开始的问题，我们知道返回Range的原因了，因为协议FrowardIndexTyep比Comparable更具体，所以在没有声明具体类型的时候，编译器就帮我们选择了这个。</p>
+<p>参考文章 <a href="http://airspeedvelocity.net/2014/09/20/which-func/" target="_blank" rel="external">1</a><a href="http://airspeedvelocity.net/2014/09/24/which-function-does-swift-call-part-2-single-arguments/" target="_blank" rel="external">2</a><a href="http://airspeedvelocity.net/2014/10/07/which-function-does-swift-call-part-3-protocol-composition/" target="_blank" rel="external">3</a></p>
+
+      
+    </div>
+    <footer>
+      
+        
+  
+  <div class="categories">
+    <a href="/categories/Swift/">Swift</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/Swift/">Swift</a>, <a href="/tags/function/">function</a>
+  </div>
+
+        <div class="bdsharebuttonbox"><a href="#" class="bds_more" data-cmd="more"></a><a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a><a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a><a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a><a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a><a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a></div>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"1","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<section id="comment">
+<!-- UY BEGIN -->
+<div id="uyan_frame"></div>
+<script type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=1853813"></script>
+<!-- UY END -->
+</section>
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:ioser.cc">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/Swift/">Swift</a><small>1</small></li>
+  
+    <li><a href="/categories/git/">git</a><small>3</small></li>
+  
+    <li><a href="/categories/iOS/">iOS</a><small>11</small></li>
+  
+    <li><a href="/categories/生活/">生活</a><small>3</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">标签</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/GCD/">GCD</a><small>2</small></li>
+  
+    <li><a href="/tags/NSOperation/">NSOperation</a><small>2</small></li>
+  
+    <li><a href="/tags/NSOperation-WWDC-NSOperationQueue/">NSOperation WWDC NSOperationQueue</a><small>1</small></li>
+  
+    <li><a href="/tags/NSOperationQueue-NSOperation/">NSOperationQueue NSOperation</a><small>1</small></li>
+  
+    <li><a href="/tags/NSRunLoop/">NSRunLoop</a><small>1</small></li>
+  
+    <li><a href="/tags/NSTimer/">NSTimer</a><small>1</small></li>
+  
+    <li><a href="/tags/Swift/">Swift</a><small>1</small></li>
+  
+    <li><a href="/tags/UIView-AutoLayout/">UIView AutoLayout</a><small>1</small></li>
+  
+    <li><a href="/tags/function/">function</a><small>1</small></li>
+  
+    <li><a href="/tags/git/">git</a><small>3</small></li>
+  
+    <li><a href="/tags/iOS7/">iOS7</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  <iframe width="100%" height="550" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=1&ptype=0&speed=0&skin=5&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=1732353090&verifier=eb816cbb&dpc=1"></iframe>
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2014 yaozhuoyu
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//libs.baidu.com/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>
