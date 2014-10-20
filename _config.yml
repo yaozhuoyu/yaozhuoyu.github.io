@@ -83,6 +83,9 @@ pagination_dir: page
 theme: light
 exclude_generator:
 
+plugins: 
+- hexo-generator-sitemap
+
 # Deployment
 ## Docs: http://hexo.io/docs/deployment.html
 deploy:
