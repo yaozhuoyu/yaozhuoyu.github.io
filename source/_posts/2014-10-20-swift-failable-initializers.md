@@ -104,30 +104,94 @@ if unknownUnit == nil {
 
 ### Failable Initializers for Classes
 
+对于值类型(structure 和 enumeration)，**failable initializers**可以在initializer实现的任何点触发初始化失败，返回nil。在上面的Animal类的例子中，初始化失败的触发是在实现的开始，在species属性设置之前。
 
+对于class，**failable initializers**触发失败之前，其所有的存储型属性必须要设置一个初始值，并且初始化委托发生完成(见下一节Propagation of Initialization Failure)。例如下面的例子：
+```swift
+class Product {
+    let name: String!
+    init?(name: String) {
+        if name.isEmpty { return nil }
+        self.name = name
+    }
+}
+```
+Product的定义和结构体Animal的定义很相似，但是我们看到name是一个implicitly unwrapped optional string type (String!)。因为他是一个optional type，这意味着name属性在被赋值一个具体值的之前，有一个缺省值nil。这个缺省值nil表示Product类的每一个属性都有一个有效的初始值，因此，Product的**failable initializers**可以在初始化函数开始的时候就触发失败。
 
+因为name属性是一个常量，在初始化成功之后，我们可以放心的使用name属性而不用去检查其是否为nil。
+```swift
+if let bowTie = Product(name: "bow tie") {
+    // no need to check if bowTie.name == nil
+    println("The product's name is \(bowTie.name)")
+}
+// prints "The product's name is bow tie"
+```
 
+### Propagation of Initialization Failure
 
+下面的例子定义了Product的子类--CartItem，CartItem引入了一个常量属性quantity，确保此属性的值至少为1：
+```swift
+class CartItem: Product {
+    let quantity: Int!
+    init?(name: String, quantity: Int) {
+        super.init(name: name)
+        if quantity < 1 { return nil }
+        self.quantity = quantity
+    }
+}
+```
+CartItem的**failable initializers**首先委到父类的`init(name:)`初始化函数。这满足了要求：**failable initializers**在触发初始化失败之前，其必须进行完初始化委托(其实我的理解就是必须在调用完父类的初始化方法之后)。
 
+如果父类的初始化函数失败(name为空)，则整个初始化过程失败，立即结束，不会在执行。如果父类的初始化函数成功，CartItem会进一步验证quantity的合法性。
 
+如果CartItem实例有一非空的name，并且quantity的值大于1，则初始化成功：
+```swift
+if let twoSocks = CartItem(name: "sock", quantity: 2) {
+    println("Item: \(twoSocks.name), quantity: \(twoSocks.quantity)")
+}
+// prints "Item: sock, quantity: 2"
+```
+如果创建一个quantity值为0的实例，则CartItem初始化失败：
+```swift
+if let zeroShirts = CartItem(name: "shirt", quantity: 0) {
+    println("Item: \(zeroShirts.name), quantity: \(zeroShirts.quantity)")
+} else {
+    println("Unable to initialize zero shirts")
+}
+// prints "Unable to initialize zero shirts"
+```
 
+### Overriding a Failable Initializer
 
+和其他initialize一样，子类可以重写父类的**failable initializers**。并且，子类可以是non-failable initializer。注意如果用一个non-failable initializer来覆盖父类的failable initializer，子类实现中不能去调用父类的failable initializer。一个non-failable initializer永远都不能委托到一个failable initializer上。
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-http://get.jobdeer.com/6009.get
-
-https://developer.apple.com/library/ios/documentation/Swift/Conceptual/Swift_Programming_Language/Initialization.html#//apple_ref/doc/uid/TP40014097-CH18-XID_339
+下面例子定义了一个类Document：
+```swift
+class Document {
+    var name: String?
+    // this initializer creates a document with a nil name value
+    init() {}
+    // this initializer creates a document with a non-empty name value
+    init?(name: String) {
+        if name.isEmpty { return nil }
+        self.name = name
+    }
+}
+```
+又定义了Document类的子类--AutomaticallyNamedDocument，用一个non-failable initializer(`init(name:)`)覆盖了父类的failable initializer(`init?(name:)`)，
+```swift
+class AutomaticallyNamedDocument: Document {
+    override init() {
+        super.init()
+        self.name = "[Untitled]"
+    }
+    override init(name: String) {
+        super.init()
+        if name.isEmpty {
+            self.name = "[Untitled]"
+        } else {
+            self.name = name
+        }
+    }
+}
+```
