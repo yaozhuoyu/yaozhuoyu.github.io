@@ -23,8 +23,6 @@
   <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
   <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
   
-
-  
 <script type="text/javascript">
 var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
 document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F00c4ebc5875ee20b2e8dd46ded23d318' type='text/javascript'%3E%3C/script%3E"));
@@ -51,6 +49,43 @@ document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3
 <div class="clearfix"></div></header>
   <div id="content" class="inner">
     <div id="main-col" class="alignleft"><div id="wrapper">
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-11-01T11:59:00.000Z"><a href="/2013/11/01/building-concurrent-user-interfaces-on-ios-zong-jie/">2013-11-01</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/11/01/building-concurrent-user-interfaces-on-ios-zong-jie/">Building Concurrent User Interfaces on iOS 总结</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>今天抽了一点时间看了WWDC 2012中的一集视频 — Building Concurrent User Interfaces on iOS，觉得很有用，在此总结一下。</p>
+<p>全文主要解决了一个问题，如何让tableview滚动起来更流畅。如何解决呢？通过将繁重的绘制工作从主线程提出来，放在其他线程做，而解放主线程。文字表达不好，来看代码吧。<br>
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2013/11/01/building-concurrent-user-interfaces-on-ios-zong-jie/#more" class="more-link">Read More</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
   <article class="post">
   
   <div class="post-content">
@@ -396,7 +431,7 @@ document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3
   <h3 class="title">分类</h3>
   <ul class="entry">
   
-    <li><a href="/categories/Swift/">Swift</a><small>1</small></li>
+    <li><a href="/categories/Swift/">Swift</a><small>2</small></li>
   
     <li><a href="/categories/git/">git</a><small>3</small></li>
   
@@ -415,6 +450,8 @@ document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3
   
     <li><a href="/tags/GCD/">GCD</a><small>2</small></li>
   
+    <li><a href="/tags/Initializers/">Initializers</a><small>1</small></li>
+  
     <li><a href="/tags/NSOperation/">NSOperation</a><small>2</small></li>
   
     <li><a href="/tags/NSOperation-WWDC-NSOperationQueue/">NSOperation WWDC NSOperationQueue</a><small>1</small></li>
@@ -425,7 +462,7 @@ document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3
   
     <li><a href="/tags/NSTimer/">NSTimer</a><small>1</small></li>
   
-    <li><a href="/tags/Swift/">Swift</a><small>1</small></li>
+    <li><a href="/tags/Swift/">Swift</a><small>2</small></li>
   
     <li><a href="/tags/UIView-AutoLayout/">UIView AutoLayout</a><small>1</small></li>
   
