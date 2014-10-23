@@ -1,0 +1,242 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Facets of Swift -- Optionals | ioser</title>
+  <meta name="author" content="yaozhuoyu">
+  
+  <meta name="description" content="yaozhuoyu’s Blog for iOS">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="Facets of Swift -- Optionals"/>
+  <meta property="og:site_name" content="ioser"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="ioser" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F00c4ebc5875ee20b2e8dd46ded23d318' type='text/javascript'%3E%3C/script%3E"));
+</script>
+
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">ioser</a></h1>
+  <h2><a href="/">记录iOS点点滴滴</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2014-10-23T13:40:48.000Z"><a href="/2014/10/23/facets-of-Swift-1/">2014-10-23</a></time>
+      
+      
+  
+    <h1 class="title">Facets of Swift -- Optionals</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>在Swift中，引入了一个新的类型Optional，关于Optional的概念，已经有很多的文章去介绍了，本文主要是总结Optional的用法，已经我们在使用Optional的时候应该要注意的地方。<br><a id="more"></a></p>
+<h3 id="什么是Optionals？">什么是Optionals？</h3>
+<p>在Objective-C中，是没有明确的可选值的，为了说明问题，举下面一个例子，假设一个方法如下：</p>
+<figure class="highlight objective-c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">- (NSInteger)indexOfItem:(Item *)item {</div><div class="line">    // <span class="keyword">...</span></div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>我们可以在调用方法的时候传入一个Item类型的对象或者传入一个nil，而返回值我们可以返回一个NSInteger类型的数字，或者找不到的时候返回NSNotFound。</p>
+<p>对于参数item我们是没有办法明确要求传入一个非nil的值的，而我们也没办法要求返回的值类型一定为数字而不是NSNotFound。</p>
+<p>而在Swift中，我们可以：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="func"><span class="keyword">func</span></span> indexOfItem(item: <span class="type">Item</span>) -&gt; <span class="type">Int</span>? {</div><div class="line">    <span class="comment">// ...</span></div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>如果我们在调用方法的时候传入一个值为nil的对象的话，编译器会报错的。</p>
+<p>在类型的后面加上问号，就是此类型的可选。</p>
+<h3 id="Unwrapping_Optionals？">Unwrapping Optionals？</h3>
+<p>假设我们写一个方法返回一个item在list中的index，在Objc中，实现应该如下：</p>
+<figure class="highlight objective-c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">- (<span class="built_in">NSInteger</span>)naturalIndexOfItem:(Item *)item {</div><div class="line">    <span class="built_in">NSInteger</span> indexOrNotFound = [<span class="keyword">self</span> indexOfItem:item];</div><div class="line">    <span class="keyword">if</span> (indexOrNotFound != <span class="built_in">NSNotFound</span>) {</div><div class="line">        <span class="keyword">return</span> indexOrNotFound + <span class="number">1</span>;</div><div class="line">    } <span class="keyword">else</span> {</div><div class="line">        <span class="keyword">return</span> <span class="built_in">NSNotFound</span>;</div><div class="line">    }</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>如果在Swift中，我们可能尝试如下写：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="func"><span class="keyword">func</span></span> naturalIndexOfItem(item: <span class="type">Item</span>) -&gt; <span class="type">Int</span>? {</div><div class="line">    <span class="keyword">let</span> indexOrNotFound = indexOfItem(item)</div><div class="line">    <span class="keyword">if</span> indexOrNotFound {</div><div class="line">        <span class="keyword">let</span> index = indexOrNotFound!</div><div class="line">        <span class="keyword">return</span> index + <span class="number">1</span></div><div class="line">    } <span class="keyword">else</span> {</div><div class="line">        <span class="keyword">return</span> <span class="built_in">nil</span></div><div class="line">    }</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>其中方法indexOfItem返回的类型Optional，我们可以直接用if语句来判断Optionals，将其作为一个逻辑值。indexOrNotFound后面的感叹号是用来unwrap可选，因此index的类型为Int。</p>
+<p>如果indexOrNotFound为nil，我们强制unwrap会在运行时报错。</p>
+<h3 id="Optional_Binding">Optional Binding</h3>
+<p>上面的写法太麻烦，我们可以用一个简单的方法—可选绑定来简化代码：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="func"><span class="keyword">func</span></span> naturalIndexOfItem(item: <span class="type">Item</span>) -&gt; <span class="type">Int</span>? {</div><div class="line">    <span class="keyword">let</span> indexOrNotFound = indexOfItem(item)</div><div class="line">    <span class="keyword">if</span> <span class="keyword">let</span> index = indexOrNotFound {</div><div class="line">        <span class="keyword">return</span> index + <span class="number">1</span></div><div class="line">    } <span class="keyword">else</span> {</div><div class="line">        <span class="keyword">return</span> <span class="built_in">nil</span></div><div class="line">    }</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>更简单的写法：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="func"><span class="keyword">func</span></span> naturalIndexOfItem(item: <span class="type">Item</span>) -&gt; <span class="type">Int</span>? {</div><div class="line">    <span class="keyword">if</span> <span class="keyword">let</span> index = indexOfItem(item) {</div><div class="line">        <span class="keyword">return</span> index + <span class="number">1</span></div><div class="line">    } <span class="keyword">else</span> {</div><div class="line">        <span class="keyword">return</span> <span class="built_in">nil</span></div><div class="line">    }</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>我们可以用一个方法<code>successor()</code>来代替加1.</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="func"><span class="keyword">func</span></span> naturalIndexOfItem(item: <span class="type">Item</span>) -&gt; <span class="type">Int</span>? {</div><div class="line">    <span class="keyword">if</span> <span class="keyword">let</span> index = indexOfItem(item) {</div><div class="line">        <span class="keyword">return</span> index.successor()</div><div class="line">    } <span class="keyword">else</span> {</div><div class="line">        <span class="keyword">return</span> <span class="built_in">nil</span></div><div class="line">    }</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<h3 id="Optional_Chaining">Optional Chaining</h3>
+<p>因为indexOfItem的返回为可选，所以我们不能这样写，编译器会报错的。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="func"><span class="keyword">func</span></span> naturalIndexOfItem(item: <span class="type">Item</span>) -&gt; <span class="type">Int</span>? {</div><div class="line">    <span class="keyword">return</span> indexOfItem(item).successor()</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>我们可以强制unwrap，如下：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="func"><span class="keyword">func</span></span> naturalIndexOfItem(item: <span class="type">Item</span>) -&gt; <span class="type">Int</span>? {</div><div class="line">    <span class="keyword">return</span> indexOfItem(item)!.successor()</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>但是当方法indexOfItem返回nil时，在运行的时候程序会crash。我们可以使用?代替！。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="func"><span class="keyword">func</span></span> naturalIndexOfItem(item: <span class="type">Item</span>) -&gt; <span class="type">Int</span>? {</div><div class="line">    <span class="keyword">return</span> indexOfItem(item)?.successor()</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<h3 id="Implicitly_Unwrapped_Optionals">Implicitly Unwrapped Optionals</h3>
+<p>对于类型后加上!也是可选，是implicitly unwrapped optional，对于implicitly unwrapped optional我们可以直接取值而不用加上unwrap。</p>
+<p>如下对于方法：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">class</span> <span class="func"><span class="keyword">func</span></span> currentDevice() -&gt; <span class="type">UIDevice</span>!</div></pre></td></tr></table></figure>
+
+<p>我们在使用的时候直接调用UIDevice的方法或者属性就可以：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> name = <span class="type">UIDevice</span>.currentDevice().name</div></pre></td></tr></table></figure>
+
+<p>以上就是可选的一般用法。</p>
+<p>本文翻译自：<a href="https://medium.com/swift-programming/facets-of-swift-part-1-optionals-b8ba5b0051a2" target="_blank" rel="external">Facets of Swift, Part 1: Optionals</a></p>
+
+      
+    </div>
+    <footer>
+      
+        
+  
+  <div class="categories">
+    <a href="/categories/Swift/">Swift</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/Swift/">Swift</a>, <a href="/tags/Optionals/">Optionals</a>
+  </div>
+
+        <div class="bdsharebuttonbox"><a href="#" class="bds_more" data-cmd="more"></a><a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a><a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a><a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a><a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a><a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a></div>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"1","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<section id="comment">
+<!-- UY BEGIN -->
+<div id="uyan_frame"></div>
+<script type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=1853813"></script>
+<!-- UY END -->
+</section>
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:ioser.cc">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/Swift/">Swift</a><small>4</small></li>
+  
+    <li><a href="/categories/git/">git</a><small>3</small></li>
+  
+    <li><a href="/categories/iOS/">iOS</a><small>12</small></li>
+  
+    <li><a href="/categories/生活/">生活</a><small>3</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">标签</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/GCD/">GCD</a><small>2</small></li>
+  
+    <li><a href="/tags/Initializers/">Initializers</a><small>1</small></li>
+  
+    <li><a href="/tags/Library/">Library</a><small>1</small></li>
+  
+    <li><a href="/tags/NSOperation/">NSOperation</a><small>2</small></li>
+  
+    <li><a href="/tags/NSOperation-WWDC-NSOperationQueue/">NSOperation WWDC NSOperationQueue</a><small>1</small></li>
+  
+    <li><a href="/tags/NSOperationQueue-NSOperation/">NSOperationQueue NSOperation</a><small>1</small></li>
+  
+    <li><a href="/tags/NSRunLoop/">NSRunLoop</a><small>1</small></li>
+  
+    <li><a href="/tags/NSTimer/">NSTimer</a><small>1</small></li>
+  
+    <li><a href="/tags/Optionals/">Optionals</a><small>1</small></li>
+  
+    <li><a href="/tags/Swift/">Swift</a><small>4</small></li>
+  
+    <li><a href="/tags/UIView-AutoLayout/">UIView AutoLayout</a><small>1</small></li>
+  
+    <li><a href="/tags/function/">function</a><small>1</small></li>
+  
+    <li><a href="/tags/git/">git</a><small>3</small></li>
+  
+    <li><a href="/tags/iOS/">iOS</a><small>1</small></li>
+  
+    <li><a href="/tags/iOS7/">iOS7</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  <iframe width="100%" height="550" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=1&ptype=0&speed=0&skin=5&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=1732353090&verifier=eb816cbb&dpc=1"></iframe>
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2014 yaozhuoyu
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//libs.baidu.com/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>

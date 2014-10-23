@@ -1,0 +1,261 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Swift运行速度的秘密 | ioser</title>
+  <meta name="author" content="yaozhuoyu">
+  
+  <meta name="description" content="yaozhuoyu’s Blog for iOS">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="Swift运行速度的秘密"/>
+  <meta property="og:site_name" content="ioser"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="ioser" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F00c4ebc5875ee20b2e8dd46ded23d318' type='text/javascript'%3E%3C/script%3E"));
+</script>
+
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">ioser</a></h1>
+  <h2><a href="/">记录iOS点点滴滴</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2014-10-20T16:58:53.000Z"><a href="/2014/10/21/swift-speed-secrets/">2014-10-21</a></time>
+      
+      
+  
+    <h1 class="title">Swift运行速度的秘密</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>自从Swift推出之后，官方特别强调的是速度是其一个很大的优势，它比动态语言例如Python、JavaScript快很多，同时也比Objective-C的运行速度快，并且声称在某些情况下比C的速度也要快。但真的是这样的吗？<br><a id="more"></a></p>
+<p>虽然Swift语言应该有更出色的性能，但是当前的编译器优化的并不是很好，Swift很难在性能测试中发挥出优势，大部分原因是因为编译调用了大量的无关的retian/release，希望在以后的版本中对此有优化。这篇文章主要是讲Swift在运行速度上为什么会比Objective-C有优势。</p>
+<h3 id="Faster_Method_Dispatch">Faster Method Dispatch</h3>
+<p>我们都知道，Objective-C方法的每一次调用，都会被转化为调用<code>objc_msgSend</code>，此方法负责运行时在class method tables中寻找selector对应的函数。</p>
+<p>考虑下面的Swift代码：</p>
+<figure class="highlight Swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Class</span> </span>{</div><div class="line">        <span class="func"><span class="keyword">func</span></span> testmethod1() { <span class="built_in">print</span>(<span class="string">"testmethod1"</span>) }</div><div class="line">        <span class="preprocessor">@final</span> <span class="func"><span class="keyword">func</span></span> testmethod2() { <span class="built_in">print</span>(<span class="string">"testmethod2"</span>) }</div><div class="line">    }</div><div class="line"></div><div class="line">    <span class="class"><span class="keyword">class</span> <span class="title">Subclass</span>: <span class="title">Class</span> </span>{</div><div class="line">        <span class="keyword">override</span> <span class="func"><span class="keyword">func</span></span> testmethod1() { <span class="built_in">print</span>(<span class="string">"overridden testmethod1"</span>) }</div><div class="line">    }</div><div class="line"></div><div class="line">    <span class="func"><span class="keyword">func</span></span> <span class="type">TestFunc</span>(obj: <span class="type">Class</span>) {</div><div class="line">        obj.testmethod1()</div><div class="line">        obj.testmethod2()</div><div class="line">    }</div></pre></td></tr></table></figure>
+
+<p>在Swift中，编译器可以利用语言提供的优势—更严格的类型检查，在Objective-C中，我们可以欺骗编译器，对象可能跟我们声明的类型不匹配，但是在Swift中，我们我允许这么做。如果我们说obj是Class类型的实例，那么obj要么是Class类型，要么是其子类类型。</p>
+<p>Swift编译器调用函数是通过index在一个叫vtable的数组中获取函数指针，vtable是一个函数指针数组。编译器调用一个方法的过程大概是这样的：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">methodImplementation = object-&gt;<span class="class"><span class="keyword">class</span>.<span class="title">vtable</span>[<span class="title">indexOfMethod1</span>]</span></div><div class="line">methodImplementation()</div></pre></td></tr></table></figure>
+
+<p>数组索引机制是比objc_msgSend机制在速度上有优势的。</p>
+<p>方法testmethod2的表现更好，因为其被声明为@final，编译器知道子类不能去重写此方法，因此不管什么情况，调用此方法总是去寻找Class对应的实现。因此编译器不需要在vtable中去寻找，其可以直接进行一个普通的函数调用—-<em>_TFC9speedtest5Class11testmethod2fS0_FT_T</em>(这个是我们例子中testmethod2方法实现的mangled name)。</p>
+<p>这并不是巨大的优势，objc_msgSend也是很快的，大多数程序不会在这个上面花费大量时间。因此，从这个方面，Swift比Objective-C最多有几个百分点的优势。</p>
+<h3 id="More_Intelligent_Method_Calls">More Intelligent Method Calls</h3>
+<p>不同的方法调用语法可以在速度上比dispatch技术有一个改进。因为编译器比我们更清楚控制流程，其可以很好的优化代码。它可以将方法line调用，甚至完全消除方法调用。</p>
+<p>在上面的例子中，如果删除testmethod2方法体：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="at_rule">@<span class="keyword">final</span> func <span class="function">testmethod2</span>() </span>{}</div></pre></td></tr></table></figure>
+
+<p>编译器是足够聪明的，当它看到调用的testmethod2方法什么也没有做时，会优化掉对方法testmethod2的调用。</p>
+<p>如果有足够的本地信息，即使方法没有被标记为@final，编译器也有可能会优化掉对方法testmethod2的调用。例如下面的代码：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> <span class="variable">obj =</span> Class()</div><div class="line">obj.testmethod1()</div><div class="line">obj.testmethod2()</div></pre></td></tr></table></figure>
+
+<p>因为编译器可以看到obj对象的创建，知道其是Class的实例，而不是其子类，这舍得编译器能完全消除dynamic dispatch，对于方法testmethod1直接调用其实现。</p>
+<p>考虑一个极端情况，如下代码：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="number">0</span>..<span class="number">1000000</span> {</div><div class="line">    obj.testmethod2()</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>在Objective-C中，这段代码将发送一百万的消息。在Swift中，编译器会看到方法testmethod2什么都没有做，可以优化掉此循环，意味着此代码一次都不会运行。</p>
+<h3 id="Less_Memory_Allocation">Less Memory Allocation</h3>
+<p>如果编译器知道足够多的信息，它可以优化掉一些不必要的内存分配。在上面的例子中，编译器看到对象的创建和使用从来没有超出局部作用域，编译器会有heap allocation代替stack allocation，因为stack上分配内存更快。在极端的情况下，如果一个对象方法的调用没有使用此对象(the methods invoked on the object never actually use the object)，编译器会直接调过allocation。考虑下面的Objective-C代码：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">1000000</span>; i++)</div><div class="line">        [[[<span class="built_in">NSObject</span> alloc] init] <span class="keyword">self</span>];</div></pre></td></tr></table></figure>
+
+<p>这将发送300万次的消息，分配和销毁100万个对象。如果是Swift代码，编译器编译之后什么都会没有，因为编译器确定self方法不会做任何有用的事情，并且生成的对象在出了作用域外都没有使用到。</p>
+<h3 id="More_Efficient_Register_Usage">More Efficient Register Usage</h3>
+<p>每一个Objective-C方法都会带有两个隐性的参数：self和_cmd。对于大多数架构（包括x86-64的，ARM和ARM64），函数的最初几个参数在寄存器中传递，其余的通过在堆栈中。寄存器是比堆要快得多，所以在寄存器传递参数可以有一个很大的性能优势。</p>
+<p>隐性参数_cmd很少需要，当完全采用动态消息发送的时候才会用到，而99%的OC代码是不会用到的。但是在每次函数调用的时候，_cmd都要占用寄存器，剩下很少的寄存器可以使用。ARM仅使用四个寄存器传递参数，x86-64的使用六个，而ARM64采用8。</p>
+<p>Swift省略了参数_cmd，从而释放了一个额外的参数寄存器，用于更有用的目的。对于需要多个参数（三个或更多个的ARM，五个或更多的x86-64的，和七个或更多的ARM64）的方法，这意味着在每次函数调用的时候因为多一个参数寄存器使用从而能有一个小的性能优势。</p>
+<h3 id="Aliasing">Aliasing</h3>
+<p>上面都是Swift比Objective-C运行速度有优势的原因，但是C语言呢？Aliasing可能是一个Swift超越C语言的方面。</p>
+<p>Aliasing是你有多个指针指向同一块内存，例如：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">int <span class="keyword">*</span>ptrA = malloc(100 <span class="keyword">*</span> sizeof(<span class="keyword">*</span>ptrA));</div><div class="line">int <span class="keyword">*</span>ptrB = ptrA;</div></pre></td></tr></table></figure>
+
+<p>这是一个棘手的情况，因为对ptrA的修改会影响到ptrB的读取，反之也一样。这会影响到编译器的优化能力。</p>
+<p>考虑下面标准库函数memcpy的实现：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"> <span class="keyword">void</span> *mikememcpy(<span class="keyword">void</span> *dst, <span class="keyword">const</span> <span class="keyword">void</span> *src, size_t n) {</div><div class="line">  <span class="keyword">char</span> *dstBytes = dst;</div><div class="line">  <span class="keyword">const</span> <span class="keyword">char</span> *srcBytes = src;</div><div class="line">  </div><div class="line">  <span class="keyword">for</span>(size_t i = <span class="number">0</span>; i &lt; n; i++)</div><div class="line">    dstBytes[i] = srcBytes[i];</div><div class="line">  </div><div class="line">  <span class="keyword">return</span> dst;</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>每次都copy一个字节，效率是非常低效的，我们通常想要copy更大的块。SIMD指令允许每次copy 16或者32字节，会使其速度变快。理论上，编译器应该能够分析这个循环，并为我们这样做的。然而，因为Aliasing，编译器停止优化。要理解为什么，考虑下面的代码：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">char</span> *src = strdup(<span class="string">"hello, world"</span>);</div><div class="line"><span class="keyword">char</span> *dst = src + <span class="number">1</span>;</div><div class="line">mikememcpy(dst, src, <span class="built_in">strlen</span>(dst));</div></pre></td></tr></table></figure>
+
+<p>对于函数memcpy，这样做是不合法的。其不允许传递重叠指针。然而，这里是方法mikememcpy，当其接受重叠指针的时候，行为会变得异常。</p>
+<p>在第一次循环的时候，srcBytes[i]为h，而dstBytes[i]为e，在第一个copy之后，字符串为”hhllo, world”，第二次循环之后，字符串变为”hhhlo, world”，继续重复这个过程，最后结果为”hhhhhhhhhhhh”。</p>
+<p>这就是memcpy不允许使用重叠指针的原因。memmove函数是足够只能的，可以处理想这样的重叠指针情况，但是是以牺牲性能为代价的。通过忽略重叠指针，memcpy的处理速度会更快。</p>
+<p>但是，编译器并不知道这些场景，他不知道mikememcpy函数假定参数不重叠。因此编译器很难去优化。</p>
+<p>clang在对于这个函数的时候做了一些令人欣喜的工作。其在生成代码的时候会去检查参数指针是否重叠，如果没有重叠会进行代码优化。此举将编译器缺少上下文环境的造成的性能损失大大降低，但并不是完全没有损失。</p>
+<p>C语言中这是一个普遍的问题，大多数代码写的时候假定指针没有别名(alias)，但是编译器生成的代码假定我们可能有，这就使得C代码很难去优化。</p>
+<p>在C99中，引入了新的关键字restrict，关键字restrict只用于限定指针；该关键字用于告知编译器，所有修改该指针所指向内容的操作全部都是基于(base on)该指针的，即不存在其它进行修改操作的途径；这样的后果是帮助编译器进行更好的代码优化，生成更有效率的汇编代码。</p>
+<p>举个简单的例子:</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">int foo (int* x, int* y)</div><div class="line"><span class="keyword">...</span>{</div><div class="line">*x = <span class="number">0</span>;</div><div class="line">*y = <span class="number">1</span>;</div><div class="line"><span class="keyword">return</span> *x;</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>很显然函数foo()的返回值是0，除非参数x和y的值相同。可以想象，99％的情况下该函数都会返回0而不是1。然而编译起必须保证生成100%正确的代码，因此，编译器不能将原有代码替换成下面的更优版本</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">int f (int* x, int* y)</div><div class="line"><span class="keyword">...</span>{</div><div class="line">*x = <span class="number">0</span>;</div><div class="line">*y = <span class="number">1</span>;</div><div class="line"><span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>现在我们有了restrict这个关键字，就可以利用它来帮助编译器安全的进行代码优化了</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">int f (int *restrict x, int *restrict y)</div><div class="line"><span class="keyword">...</span>{</div><div class="line">*x = <span class="number">0</span>;</div><div class="line">*y = <span class="number">1</span>;</div><div class="line"><span class="keyword">return</span> *x;</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>此时，由于指针 x 是修改x的唯一途径，编译起可以确认 “*y=1; ”这行代码不会修改x的内容，因此可以安全的优化为</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">int f (int *restrict x, int *restrict y)</div><div class="line"><span class="keyword">...</span>{</div><div class="line">*x = <span class="number">0</span>;</div><div class="line">*y = <span class="number">1</span>;</div><div class="line"><span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>在Swift代码中，在一般情况下，你不采取引用任意实例变量和数组的语义使他们无法重叠。这能让Swift编译器可以更好的为我们优化代码，减少过多的载入和存储，从而优化性能。</p>
+<p>本文主要翻译自<a href="https://mikeash.com/pyblog/friday-qa-2014-07-04-secrets-of-swifts-speed.html" target="_blank" rel="external">Secrets of Swift’s Speed</a>，同时也参考了博文<a href="http://blog.chinaunix.net/uid-22197900-id-359209.html" target="_blank" rel="external">restrict关键字用法 </a></p>
+
+      
+    </div>
+    <footer>
+      
+        
+  
+  <div class="categories">
+    <a href="/categories/Swift/">Swift</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/Swift/">Swift</a>
+  </div>
+
+        <div class="bdsharebuttonbox"><a href="#" class="bds_more" data-cmd="more"></a><a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a><a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a><a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a><a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a><a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a></div>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"1","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<section id="comment">
+<!-- UY BEGIN -->
+<div id="uyan_frame"></div>
+<script type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=1853813"></script>
+<!-- UY END -->
+</section>
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:ioser.cc">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/Swift/">Swift</a><small>4</small></li>
+  
+    <li><a href="/categories/git/">git</a><small>3</small></li>
+  
+    <li><a href="/categories/iOS/">iOS</a><small>12</small></li>
+  
+    <li><a href="/categories/生活/">生活</a><small>3</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">标签</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/GCD/">GCD</a><small>2</small></li>
+  
+    <li><a href="/tags/Initializers/">Initializers</a><small>1</small></li>
+  
+    <li><a href="/tags/Library/">Library</a><small>1</small></li>
+  
+    <li><a href="/tags/NSOperation/">NSOperation</a><small>2</small></li>
+  
+    <li><a href="/tags/NSOperation-WWDC-NSOperationQueue/">NSOperation WWDC NSOperationQueue</a><small>1</small></li>
+  
+    <li><a href="/tags/NSOperationQueue-NSOperation/">NSOperationQueue NSOperation</a><small>1</small></li>
+  
+    <li><a href="/tags/NSRunLoop/">NSRunLoop</a><small>1</small></li>
+  
+    <li><a href="/tags/NSTimer/">NSTimer</a><small>1</small></li>
+  
+    <li><a href="/tags/Optionals/">Optionals</a><small>1</small></li>
+  
+    <li><a href="/tags/Swift/">Swift</a><small>4</small></li>
+  
+    <li><a href="/tags/UIView-AutoLayout/">UIView AutoLayout</a><small>1</small></li>
+  
+    <li><a href="/tags/function/">function</a><small>1</small></li>
+  
+    <li><a href="/tags/git/">git</a><small>3</small></li>
+  
+    <li><a href="/tags/iOS/">iOS</a><small>1</small></li>
+  
+    <li><a href="/tags/iOS7/">iOS7</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  <iframe width="100%" height="550" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=1&ptype=0&speed=0&skin=5&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=1732353090&verifier=eb816cbb&dpc=1"></iframe>
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2014 yaozhuoyu
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//libs.baidu.com/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>

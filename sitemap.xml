@@ -2,6 +2,21 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://ioser.cc/2014/10/23/facets-of-Swift-1/</loc>
+    <lastmod>2014-10-23T14:50:37.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://ioser.cc/2014/10/21/worthy-ios-lib/</loc>
+    <lastmod>2014-10-23T13:38:42.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://ioser.cc/2014/10/21/swift-speed-secrets/</loc>
+    <lastmod>2014-10-22T01:43:30.000Z</lastmod>
+  </url>
+  
+  <url>
     <loc>http://ioser.cc/2014/10/20/swift-failable-initializers/</loc>
     <lastmod>2014-10-20T16:02:03.000Z</lastmod>
   </url>
@@ -37,27 +52,12 @@
   </url>
   
   <url>
-    <loc>http://ioser.cc/2013/11/01/building-concurrent-user-interfaces-on-ios-zong-jie/</loc>
-    <lastmod>2014-01-05T15:21:45.000Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://ioser.cc/2013/11/04/guan-yu-nstimer/</loc>
-    <lastmod>2014-01-05T15:21:45.000Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://ioser.cc/2013/11/05/guan-yu-nsrunloopde-ji-ge-li-zi/</loc>
+    <loc>http://ioser.cc/2013/11/11/guan-yu-gcdde-li-zi/</loc>
     <lastmod>2014-01-05T15:21:45.000Z</lastmod>
   </url>
   
   <url>
     <loc>http://ioser.cc/2013/10/19/nsurlsessionzong-jie/</loc>
-    <lastmod>2014-01-05T15:21:45.000Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://ioser.cc/2013/11/12/guan-yu-dispatch-sources/</loc>
     <lastmod>2014-01-05T15:21:45.000Z</lastmod>
   </url>
   
@@ -97,7 +97,22 @@
   </url>
   
   <url>
-    <loc>http://ioser.cc/2013/11/11/guan-yu-gcdde-li-zi/</loc>
+    <loc>http://ioser.cc/2013/11/01/building-concurrent-user-interfaces-on-ios-zong-jie/</loc>
+    <lastmod>2014-01-05T15:21:45.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://ioser.cc/2013/11/04/guan-yu-nstimer/</loc>
+    <lastmod>2014-01-05T15:21:45.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://ioser.cc/2013/11/05/guan-yu-nsrunloopde-ji-ge-li-zi/</loc>
+    <lastmod>2014-01-05T15:21:45.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://ioser.cc/2013/11/12/guan-yu-dispatch-sources/</loc>
     <lastmod>2014-01-05T15:21:45.000Z</lastmod>
   </url>
   

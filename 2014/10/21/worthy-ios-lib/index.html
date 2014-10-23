@@ -1,0 +1,219 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>值得关注的iOS开源库 | ioser</title>
+  <meta name="author" content="yaozhuoyu">
+  
+  <meta name="description" content="yaozhuoyu’s Blog for iOS">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="值得关注的iOS开源库"/>
+  <meta property="og:site_name" content="ioser"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="ioser" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F00c4ebc5875ee20b2e8dd46ded23d318' type='text/javascript'%3E%3C/script%3E"));
+</script>
+
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">ioser</a></h1>
+  <h2><a href="/">记录iOS点点滴滴</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2014-10-21T06:40:35.000Z"><a href="/2014/10/21/worthy-ios-lib/">2014-10-21</a></time>
+      
+      
+  
+    <h1 class="title">值得关注的iOS开源库</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>无论你是否喜欢，iOS开发在近几年得到了很大的关注和发展，在开发中，我们其中很大一部分工作是关于如何写好代码，复用代码，已经依赖开源的源代码。</p>
+<p>因此我想推荐一些好的开源库和框架来帮助开发，使开发过程变得更容易。<br><a id="more"></a></p>
+<h3 id="Reusing_code">Reusing code</h3>
+<p>那些需要开发者重复一遍又一遍的造轮子的岁月应该一去不复返了，我们在开始做任何事情之前都要首先在网上寻找一些对应的主题。</p>
+<p>为什么？因为我们可能找到一个很好的开源项目，而那正是我们想要的。即使不是这样，我们也可能找到一些人在做相同或者类似的事情，他们可能遇到跟我们相同的问题，可能已经有了好的解决办法。</p>
+<h3 id="The_libraries_and_frameworks">The libraries and frameworks</h3>
+<p>接下来将列出一些最常用的开源库和框架，每一个都应该去尝试学习。</p>
+<h4 id="1-Development_tools">1.Development tools</h4>
+<p>A. <strong>Functional Reactive Programming</strong><br>    (1).<a href="https://github.com/ReactiveCocoa/ReactiveCocoa" target="_blank" rel="external">ReactiveCocoa</a> – implementation of a paradigm that makes development easier.  </p>
+<p>B. <strong>Toolkit</strong><br>    (1).<a href="https://github.com/jverkoey/nimbus" target="_blank" rel="external">NimbusKit</a><br>    (2).<a href="https://github.com/soffes/sstoolkit" target="_blank" rel="external">SSToolKit</a><br>    (3).<a href="https://github.com/zwaldowski/BlocksKit" target="_blank" rel="external">BlocksKit</a><br>    (4).<a href="https://github.com/andrei512/APUtils" target="_blank" rel="external">APUtils</a></p>
+<p>C. <strong>Debugging</strong><br>    (1).<a href="https://github.com/domesticcatsoftware/DCIntrospect" target="_blank" rel="external">DCIntrospect</a> – for UI debugging<br>    (2).<a href="https://github.com/square/PonyDebugger" target="_blank" rel="external">PonyDebugger</a><br>    (3).<a href="https://github.com/acoomans/SimulatorRemoteNotifications/" target="_blank" rel="external">SimulatorRemoteNotifications</a>– allows testing notifications on the simulator (faking them)</p>
+<p>D. <strong>Logging</strong><br>    (1)<a href="https://github.com/CocoaLumberjack/CocoaLumberjack" target="_blank" rel="external">CocoaLumberjack</a> – easy to use, super extensible and great performance logging component</p>
+<p>E. <strong>Formatting</strong><br>    (1)<a href="https://github.com/mattt/FormatterKit" target="_blank" rel="external">FormatterKit</a> – data formatting out of the box (addresses, distance between 2 points, time intervals, …)<br>    (2)<a href="https://github.com/mattt/TransformerKit" target="_blank" rel="external">TransformerKit</a> - A block-based API for NSValueTransformer, with a growing collection of useful examples.</p>
+<p>F. <strong>Unit Testing (read more about iOS Unit Testing <a href="http://iosunittesting.com/" target="_blank" rel="external">here</a>)</strong><br>    (1)<a href="https://github.com/allending/Kiwi" target="_blank" rel="external">Kiwi</a> – good BDD library (specs, expectations, mocks, stubs, async tests). I did have to drop it due to async tests failing to work as expected<br>    (2)<a href="https://github.com/specta/specta" target="_blank" rel="external">Specta</a> – another TDD/BDD library. Very similar to Kiwi. Works great together with Expecta and OCMock.<br>    (3)<a href="https://github.com/specta/expecta" target="_blank" rel="external">Expecta</a> – expectations for unit tests<br>    (4)<a href="https://github.com/erikdoe/ocmock" target="_blank" rel="external">OCMock</a><br>    (5)<a href="https://github.com/facebook/xctool" target="_blank" rel="external">xctool</a> – very useful replacement for xcodebuild tool. It allows running Application Test targets from the command line and has a beautiful output. <a href="http://nshipster.com/xctool/" target="_blank" rel="external">Read more</a></p>
+<p>G. <strong>Code Documentation</strong><br>    (1)<a href="http://cocoadocs.org/" target="_blank" rel="external">Cocoadocs</a> – documentation for all Cocoapods projects<br>    (2)<a href="https://github.com/tomaz/appledoc" target="_blank" rel="external">appledoc</a> – command line tool for generating “Apple like” code documentation from comments</p>
+<p>H. <strong>Acknowledgements</strong><br>    (1)Listing the licenses of all the open source libraries used is a recommendation (might become a must in the near future).(VTAcknowledgementsViewController)[<a href="https://github.com/vtourraine/VTAcknowledgementsViewController" target="_blank" rel="external">https://github.com/vtourraine/VTAcknowledgementsViewController</a>]</p>
+<p>I. <strong>Xcode plugins</strong><br>    (1)<a href="https://github.com/mneorr/Alcatraz" target="_blank" rel="external">Alcatraz</a> – Xcode package manager<br>    (2)<a href="https://github.com/ricobeck/KFCocoaPodsPlugin" target="_blank" rel="external">KFCocoaPodsPlugin</a> – CocoaPods plugin, requires Xcode 5<br>    (3)<a href="https://github.com/onevcat/VVDocumenter-Xcode" target="_blank" rel="external">VVDocumenter-Xcode</a> – great plugin that eases code documentation. You just need to press the shortcut (by default ///) and the code section below to the cursor gets documented (template). Then fill in the missing info – it’s very easy and it looks great.<br>    (4)<a href="https://github.com/robbiehanson/XcodeColors" target="_blank" rel="external">XcodeColors</a> – used with CocoaLumberjack to highlight errors and warnings<br>    (5)<a href="https://github.com/holtwick/HOStringSense-for-Xcode" target="_blank" rel="external">HOStringSense-for-Xcode</a> – takes care of string escaping<br>    (6)<a href="https://github.com/ksuther/KSImageNamed-Xcode" target="_blank" rel="external">KSImageNamed-Xcode</a> – autocomplete for image names<br>    (7)<a href="https://github.com/mattt/Xcode-Snippets" target="_blank" rel="external">Snippets</a> – Mattt Thompson gives away some of the snippets he uses. More about <a href="http://nshipster.com/xcode-snippets/" target="_blank" rel="external">Xcode Snippets</a>        </p>
+<h4 id="2-Communication_and_data_handling">2.Communication and data handling</h4>
+<p>A. <strong>Networking</strong><br>    (1)<a href="https://github.com/AFNetworking/AFNetworking" target="_blank" rel="external">AFNetworking</a> – the best networking library for iOS and more than that, a true model on how an open source project should be run. It’s Github repo is a great place to learn.<br>    (2)<a href="https://github.com/RestKit/RestKit" target="_blank" rel="external">RestKit</a> – easy integration with REST webservices based on AFNetworking<br>    (3)<a href="https://github.com/tonymillion/Reachability" target="_blank" rel="external">Reachability</a><br>    (4)<a href="https://github.com/robbiehanson/CocoaAsyncSocket" target="_blank" rel="external">CocoaAsyncSocket</a> – for low level networking (TCP, UDP)</p>
+<p>B. <strong>Browser</strong><br>    (1)<a href="https://github.com/tonisalae/TSMiniWebBrowser" target="_blank" rel="external">TSMiniWebBrowser</a></p>
+<p>C. <strong>Image caching</strong><br>    (1)<a href="https://github.com/rs/SDWebImage" target="_blank" rel="external">SDWebImage</a> – great extensible image caching, good performance<br>    (2)<a href="https://github.com/path/FastImageCache" target="_blank" rel="external">Fast Image Cache</a> – new competitor for SDWebImage, claims to get the most out of image caching performance</p>
+<p>D. <strong>Data Persistence</strong><br>    (1)<a href="https://developer.apple.com/library/mac/documentation/cocoa/conceptual/coredata/cdProgrammingGuide.html" target="_blank" rel="external">CoreData</a><br>    (2)<a href="https://github.com/magicalpanda/MagicalRecord" target="_blank" rel="external">MagicalRecord</a> – great wrapper for CoreData, makes it easy for everybody to use it<br>    (3)<a href="https://github.com/ccgus/fmdb" target="_blank" rel="external">fmdb</a> –  for people that want just a SQLite wrapper</p>
+<p>E. <strong>Keychain</strong><br>    (1)<a href="https://github.com/soffes/sskeychain" target="_blank" rel="external">SSKeychain</a></p>
+<p>F. <strong>Social</strong><br>    (1)<a href="https://github.com/facebook/facebook-ios-sdk" target="_blank" rel="external">Facebook SDK + documentation</a><br>    (2)<a href="https://github.com/ideashower/ShareKit" target="_blank" rel="external">ShareKit</a></p>
+<h4 id="3-Media">3.Media</h4>
+<p>A. <strong>Video</strong><br>    (1)<a href="https://wiki.videolan.org/VLCKit/" target="_blank" rel="external">VLCKit</a> – ObjC wrapper for libvlc, the famous tool for video playback, playlists, streaming and transcoding from VLC<br>    (2)<a href="http://www.binpress.com/app/ios-videokit/1828" target="_blank" rel="external">iOS VideoKit</a> – video playing and streaming framework</p>
+<p>……</p>
+<p><a href="http://bpoplauschi.wordpress.com/2013/11/06/worthy-ios-libraries/" target="_blank" rel="external">原文地址</a></p>
+
+      
+    </div>
+    <footer>
+      
+        
+  
+  <div class="categories">
+    <a href="/categories/iOS/">iOS</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/iOS/">iOS</a>, <a href="/tags/Library/">Library</a>
+  </div>
+
+        <div class="bdsharebuttonbox"><a href="#" class="bds_more" data-cmd="more"></a><a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a><a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a><a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a><a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a><a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a></div>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"1","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<section id="comment">
+<!-- UY BEGIN -->
+<div id="uyan_frame"></div>
+<script type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=1853813"></script>
+<!-- UY END -->
+</section>
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:ioser.cc">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/Swift/">Swift</a><small>4</small></li>
+  
+    <li><a href="/categories/git/">git</a><small>3</small></li>
+  
+    <li><a href="/categories/iOS/">iOS</a><small>12</small></li>
+  
+    <li><a href="/categories/生活/">生活</a><small>3</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">标签</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/GCD/">GCD</a><small>2</small></li>
+  
+    <li><a href="/tags/Initializers/">Initializers</a><small>1</small></li>
+  
+    <li><a href="/tags/Library/">Library</a><small>1</small></li>
+  
+    <li><a href="/tags/NSOperation/">NSOperation</a><small>2</small></li>
+  
+    <li><a href="/tags/NSOperation-WWDC-NSOperationQueue/">NSOperation WWDC NSOperationQueue</a><small>1</small></li>
+  
+    <li><a href="/tags/NSOperationQueue-NSOperation/">NSOperationQueue NSOperation</a><small>1</small></li>
+  
+    <li><a href="/tags/NSRunLoop/">NSRunLoop</a><small>1</small></li>
+  
+    <li><a href="/tags/NSTimer/">NSTimer</a><small>1</small></li>
+  
+    <li><a href="/tags/Optionals/">Optionals</a><small>1</small></li>
+  
+    <li><a href="/tags/Swift/">Swift</a><small>4</small></li>
+  
+    <li><a href="/tags/UIView-AutoLayout/">UIView AutoLayout</a><small>1</small></li>
+  
+    <li><a href="/tags/function/">function</a><small>1</small></li>
+  
+    <li><a href="/tags/git/">git</a><small>3</small></li>
+  
+    <li><a href="/tags/iOS/">iOS</a><small>1</small></li>
+  
+    <li><a href="/tags/iOS7/">iOS7</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  <iframe width="100%" height="550" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=1&ptype=0&speed=0&skin=5&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=1732353090&verifier=eb816cbb&dpc=1"></iframe>
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2014 yaozhuoyu
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//libs.baidu.com/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>
