@@ -1,0 +1,256 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>iOS国际化过程中的一些细节 | ioser</title>
+  <meta name="author" content="yaozhuoyu">
+  
+  <meta name="description" content="yaozhuoyu’s Blog for iOS">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="iOS国际化过程中的一些细节"/>
+  <meta property="og:site_name" content="ioser"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="ioser" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F00c4ebc5875ee20b2e8dd46ded23d318' type='text/javascript'%3E%3C/script%3E"));
+</script>
+
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">ioser</a></h1>
+  <h2><a href="/">记录iOS点点滴滴</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2014-11-26T12:03:34.000Z"><a href="/2014/11/26/ios-international/">2014-11-26</a></time>
+      
+      
+  
+    <h1 class="title">iOS国际化过程中的一些细节</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>今天下午研究了一下iOS app的国际化，发现里面还有很多的细节是需要注意的，所以在此总结一下。</p>
+<a id="more"></a>
+
+<h2 id="1-_基础">1. 基础</h2>
+<p>当我们通过Xcode6新建一个工程的时候，工程的目录结构大概是这样子的：</p>
+<img src="http://ioser.qiniudn.com/2014-11-26-01.png" width="538" height="294">
+
+<p>Xcode会自动的把 LaunchScreen.xib 和 Main.storyboard 放入到Base.lproj目录中，这是因为在Xcode6中我们新建的工程 Use Base Internationalization 默认是勾选的。</p>
+<img src="http://ioser.qiniudn.com/2014-11-26-02.png" width="550" height="200">
+
+
+<p>当我们添加一种语言之后，(本例子中添加简体中文为例子)，目录结构和工程结构如下：</p>
+<img src="http://ioser.qiniudn.com/2014-11-26-03.png" width="550" height="300">
+
+<img src="http://ioser.qiniudn.com/2014-11-26-04.png" width="255" height="350">
+
+<p>Xcode帮我们自动生成了zh-Hans.lproj目录，以及分别本地化xib和storyboard的字符串文件。</p>
+<p>如果在代码中需要写入文本的话，我们需要创建Localizable.strings文件，如果创建出来对应的国际化文件，最后结构如下：</p>
+<img src="http://ioser.qiniudn.com/2014-11-26-04.png" width="281" height="238">
+
+<p>base的意思就是如果没有相对应的国际化文件，就使用base中提供的。例如当我们把简体中文的Localizable.strings删掉之后，则在简体中文下找不到对应的key了，就会去base找。</p>
+<p>另一个需要知道的就是Info.plist中的key CFBundleDevelopmentRegion，此key的意思就是当手机当前的语言环境没有在对应的国际化列表中，就用CFBundleDevelopmentRegion的值对应的语言的国际化文件来显示。默认都是en，但是我们可以修改~</p>
+<p>对于iOS来讲，当改变language设置的时候，会重启Springboard，退出所有运行的app，当app 再次运行的时候，其会使用新的language设置。但是region和calendar设置可以在任何时候改变，甚至在app运行的时候。因此，一个国际化的app应该考虑到这些方面。</p>
+<p>Region的设置和language的设置是独立的，改变language的设置是不会自动改变region的设置的，如果想要同步，只能自己手动设置。region的设置主要作用于date和time的格式。</p>
+<p>Calendar的设置当前只有三种，公历，日本日历和佛教日历。</p>
+<p>Base internationalization 将面向用户的字符串从 .storyboard和 .xib文件中分离开，这降低了对.storyboard和 .xib文件进行国际化的难度。一个app只有一组.storyboard和 .xib文件，其中字符串是development language的。当我们导出进行国际化的时候，development language 字符串会做为源翻译为多种语言，当导入国际化文件的时候，Xcode会为每一个.storyboard和 .xib文件生成具体语言的字符串。</p>
+<p>面向用户的字符串也有可能出现在代码中，这时我们就要使用宏<code>NSLocalizedString</code>，当我们导出需要做国际化的时候，Xcode会找到代码中找到这些宏，并把其导出为一个文件，方便做国际化。当导入国际化文件时，Xcode会自动的在工程中添加string文件。</p>
+<p>iOS中获取当前语言的方法：</p>
+<figure class="highlight objective-c"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">NSString</span> *languageID = [[<span class="built_in">NSBundle</span> mainBundle] preferredLocalizations]<span class="variable">.firstObject</span>;</div></pre></td></tr></table></figure>
+
+<h2 id="2-_通过本地设置格式化data">2. 通过本地设置格式化data</h2>
+<p>通过下面两个方法可以返回当前用户设置的Locale：</p>
+<figure class="highlight objective-c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="constant">NSLocale *userLocale</span> = [NSLocale currentLocale];</div><div class="line"><span class="constant">NSLocale *userLocale</span> = [NSLocale autoupdatingCurrentLocale];</div></pre></td></tr></table></figure>
+
+<p>其中currentLocale方法保证返回对象的属性值不会改变，而autoupdatingCurrentLocale返回对象的属性可能改变，当用户改变region设置的时候。</p>
+<p>例如，我们可以通过NSLocale获取货币符号，等等。。</p>
+<figure class="highlight objective-c"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="constant">NSString *currencySymbol</span> = [[NSLocale currentLocale] objectForKey:NSLocaleCurrencySymbol];   <span class="comment">// "￥"</span></div></pre></td></tr></table></figure>
+
+<p>获取当前系统语言的可视化字符串通过如下方法：</p>
+<figure class="highlight objective-c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="constant">NSString *languageID</span> = [[NSBundle mainBundle] preferredLocalizations].firstObject;</div><div class="line"><span class="constant">NSLocale *locale</span> = [NSLocale localeWithLocaleIdentifier:languageID];</div><div class="line"><span class="constant">NSString *localizedString</span> = [locale displayNameForKey:NSLocaleIdentifier value:languageID];</div></pre></td></tr></table></figure>
+
+<p>当系统语言为简体中文的时候，languageID的结果为<code>zh-Hans</code>，localizedString的结果为<code>中文（简体中文）</code>。</p>
+<p>在处理NSDate的时候，我们一般使用NSDateFormatter来进行国际化。<br>对于NSDateFormatter我们可以使用系统预设定的格式进行显示，使用方法<code>+ (NSString *)localizedStringFromDate:(NSDate *)date dateStyle:(NSDateFormatterStyle)dstyle timeStyle:(NSDateFormatterStyle)tstyle</code>，系统提供了四种：</p>
+<figure class="highlight objective-c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">typedef NS_ENUM(NSUInteger, NSDateFormatterStyle) {    <span class="comment">// date and time format styles</span></div><div class="line"><span class="constant">    NSDateFormatterNoStyle</span> = kCFDateFormatterNoStyle,</div><div class="line"><span class="constant">    NSDateFormatterShortStyle</span> = kCFDateFormatterShortStyle,</div><div class="line"><span class="constant">    NSDateFormatterMediumStyle</span> = kCFDateFormatterMediumStyle,</div><div class="line"><span class="constant">    NSDateFormatterLongStyle</span> = kCFDateFormatterLongStyle,</div><div class="line"><span class="constant">    NSDateFormatterFullStyle</span> = kCFDateFormatterFullStyle</div><div class="line">};</div></pre></td></tr></table></figure>
+
+<p>在中文的locale下，下面是对应的显示：</p>
+<figure class="highlight objective-c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">NSString *localizedDateTime = [NSDateFormatter localizedStringFromDate:<span class="keyword">date</span> dateStyle:NSDateFormatterFullStyle timeStyle:NSDateFormatterFullStyle];</div><div class="line"><span class="comment">//2014年11月27日 星期四 中国标准时间13:19:21</span></div><div class="line">localizedDateTime = [NSDateFormatter localizedStringFromDate:<span class="keyword">date</span> dateStyle:NSDateFormatterLongStyle timeStyle:NSDateFormatterLongStyle];</div><div class="line"><span class="comment">//2014年11月27日 GMT+813:19:21</span></div><div class="line">localizedDateTime = [NSDateFormatter localizedStringFromDate:<span class="keyword">date</span> dateStyle:NSDateFormatterMediumStyle timeStyle:NSDateFormatterMediumStyle];</div><div class="line"><span class="comment">//2014年11月27日 13:19:21</span></div><div class="line">localizedDateTime = [NSDateFormatter localizedStringFromDate:<span class="keyword">date</span> dateStyle:NSDateFormatterShortStyle timeStyle:NSDateFormatterShortStyle];</div><div class="line"><span class="comment">//14/11/27 13:19</span></div></pre></td></tr></table></figure>
+
+<p>当为<code>NSDateFormatterNoStyle</code>的时候，格式化结果为空字符串。</p>
+<p>当预设定的格式不满足需求的时候，我们可以自定义格式化模板，使用方法<code>+ (NSString *)dateFormatFromTemplate:(NSString *)tmplate options:(NSUInteger)opts locale:(NSLocale *)locale</code>。</p>
+<p>如下：</p>
+<figure class="highlight objective-c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">NSDateFormatter *<span class="variable">dateFormatter =</span> [NSDateFormatter new];</div><div class="line">NSString *<span class="variable">localeFormatString =</span> [NSDateFormatter dateFormatFromTemplate:@<span class="string">"dMMM"</span> options:<span class="number">0</span> locale:dateFormatter.locale];</div><div class="line">dateFormatter.<span class="variable">dateFormat =</span> localeFormatString;</div><div class="line">NSString *<span class="variable">localizedString =</span> [dateFormatter stringFromDate:[NSDate date]];</div></pre></td></tr></table></figure>
+
+<p>在简体中文locale下，结果为<code>11月27日</code>，在English (United States) 下，结果为<code>Nov 27</code>。</p>
+<p>另外一个用户可以设置的为calendar，使用下面方法获取当前用户的设置：</p>
+<figure class="highlight objective-c"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">NSCalendar</span> *currentCalendar = [<span class="built_in">NSCalendar</span> currentCalendar];</div></pre></td></tr></table></figure>
+
+<p>使用<code>NSDateComponents</code>对象来访问calendar中的具体部分：</p>
+<figure class="highlight objective-c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">NSDateComponents *components = [[NSCalendar currentCalendar]</div><div class="line">                                components:NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay | NSCalendarUnitEra</div><div class="line">                                fromDate:[NSDate <span class="built_in">date</span>]];</div><div class="line"></div><div class="line">NSInteger <span class="built_in">day</span> = [components <span class="built_in">day</span>];</div><div class="line">NSInteger <span class="built_in">month</span> = [components <span class="built_in">month</span>];</div><div class="line">NSInteger <span class="built_in">year</span> = [components <span class="built_in">year</span>];</div><div class="line">NSInteger era = [components era];</div></pre></td></tr></table></figure>
+
+<p>对于公历，era是没有作用的。</p>
+
+      
+    </div>
+    <footer>
+      
+        
+  
+  <div class="categories">
+    <a href="/categories/iOS/">iOS</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/iOS/">iOS</a>, <a href="/tags/Xcode/">Xcode</a>
+  </div>
+
+        <div class="bdsharebuttonbox"><a href="#" class="bds_more" data-cmd="more"></a><a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a><a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a><a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a><a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a><a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a></div>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"1","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<section id="comment">
+<!-- UY BEGIN -->
+<div id="uyan_frame"></div>
+<script type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=1853813"></script>
+<!-- UY END -->
+</section>
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:ioser.cc">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/Swift/">Swift</a><small>5</small></li>
+  
+    <li><a href="/categories/git/">git</a><small>3</small></li>
+  
+    <li><a href="/categories/iOS/">iOS</a><small>13</small></li>
+  
+    <li><a href="/categories/生活/">生活</a><small>3</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">标签</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/GCD/">GCD</a><small>2</small></li>
+  
+    <li><a href="/tags/Initializers/">Initializers</a><small>1</small></li>
+  
+    <li><a href="/tags/Library/">Library</a><small>1</small></li>
+  
+    <li><a href="/tags/NSOperation/">NSOperation</a><small>2</small></li>
+  
+    <li><a href="/tags/NSOperation-WWDC-NSOperationQueue/">NSOperation WWDC NSOperationQueue</a><small>1</small></li>
+  
+    <li><a href="/tags/NSOperationQueue-NSOperation/">NSOperationQueue NSOperation</a><small>1</small></li>
+  
+    <li><a href="/tags/NSRunLoop/">NSRunLoop</a><small>1</small></li>
+  
+    <li><a href="/tags/NSTimer/">NSTimer</a><small>1</small></li>
+  
+    <li><a href="/tags/Optional/">Optional</a><small>1</small></li>
+  
+    <li><a href="/tags/Optionals/">Optionals</a><small>1</small></li>
+  
+    <li><a href="/tags/Swift/">Swift</a><small>5</small></li>
+  
+    <li><a href="/tags/UIView-AutoLayout/">UIView AutoLayout</a><small>1</small></li>
+  
+    <li><a href="/tags/Xcode/">Xcode</a><small>1</small></li>
+  
+    <li><a href="/tags/function/">function</a><small>1</small></li>
+  
+    <li><a href="/tags/git/">git</a><small>3</small></li>
+  
+    <li><a href="/tags/iOS/">iOS</a><small>2</small></li>
+  
+    <li><a href="/tags/iOS7/">iOS7</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  <iframe width="100%" height="550" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=1&ptype=0&speed=0&skin=5&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=1732353090&verifier=eb816cbb&dpc=1"></iframe>
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2014 yaozhuoyu
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//libs.baidu.com/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>

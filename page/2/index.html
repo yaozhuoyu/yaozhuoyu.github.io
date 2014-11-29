@@ -55,6 +55,82 @@ document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3
     <header>
       
         <div class="icon"></div>
+        <time datetime="2013-12-05T03:47:00.000Z"><a href="/2013/12/05/iosying-yong-zhi-jian-tiao-zhuan-ju-li/">2013-12-05</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/12/05/iosying-yong-zhi-jian-tiao-zhuan-ju-li/">iOS应用之间跳转举例</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>最近好久没有写文章了。这两天在研究iOS中app之间的跳转，发现网上虽然很多资料，但是都没有详细的举例子，今天打算讲讲。</p>
+
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2013/12/05/iosying-yong-zhi-jian-tiao-zhuan-ju-li/#more" class="more-link">Read More</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-11-12T13:11:00.000Z"><a href="/2013/11/12/guan-yu-dispatch-sources/">2013-11-12</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/11/12/guan-yu-dispatch-sources/">关于Dispatch Sources</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>dispatch source是一个基本数据类型，它用来协调处理low-level的系统事件，其中包括timer dispatch source，signal dispatch source，descriptor sources，process dispatch source，Mach port dispatch source，custom dispatch sources。</p>
+<p>当配置一个dispatch source的时候，我们需要指定监控事件的类型，当事件发生时要执行的block code，已经执行code的queue，当一个监控的事件发生时，dispatch source提交block到指定的dispatch queue去执行。dispatch source会retain住其相关联的dispatch queue，阻止其被过早的被release。</p>
+<p>为了防止事件在dispatch queue中积压，dispatch sources实现了一个事件聚合机制(event coalescing scheme)，如果一个事件在上一个事件还没有开始处理之前到达，dispatch source会聚合两次事件的data。根据事件的类型，聚合可能是代替旧的事件或者时更新信息。</p>
+<p>下面将详细说明Dispatch Sources。<br>
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2013/11/12/guan-yu-dispatch-sources/#more" class="more-link">Read More</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
         <time datetime="2013-11-11T13:21:00.000Z"><a href="/2013/11/11/guan-yu-gcdde-li-zi/">2013-11-11</a></time>
       
       
@@ -338,81 +414,6 @@ document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3
 
 
 
-  <article class="post">
-  
-  <div class="post-content">
-    <header>
-      
-        <div class="icon"></div>
-        <time datetime="2013-10-23T05:40:00.000Z"><a href="/2013/10/23/guan-yu-git-pushde-shi-hou-ti-shi-warning-push-dot-default-is-unsetde-wen-ti/">2013-10-23</a></time>
-      
-      
-  
-    <h1 class="title"><a href="/2013/10/23/guan-yu-git-pushde-shi-hou-ti-shi-warning-push-dot-default-is-unsetde-wen-ti/">关于git push的时候提示warning: push.default is unset的问题</a></h1>
-  
-
-    </header>
-    <div class="entry">
-      
-        <p>今天在学习git的时候，使用了git push命令，git提示了一段警告，如下：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">warning: push.<span class="keyword">default</span> <span class="keyword">is</span> unset; its implicit value <span class="keyword">is</span> changing <span class="keyword">in</span></div><div class="line">Git <span class="number">2.0</span> from <span class="attribute">'matching</span>' <span class="keyword">to</span> <span class="attribute">'simple</span>'. <span class="keyword">To</span> squelch this message</div><div class="line"><span class="keyword">and</span> maintain the current behavior <span class="keyword">after</span> the <span class="keyword">default</span> changes, <span class="keyword">use</span>:</div><div class="line"></div><div class="line">  git config <span class="comment">--global push.default matching</span></div><div class="line"></div><div class="line"><span class="keyword">To</span> squelch this message <span class="keyword">and</span> adopt the <span class="keyword">new</span> behavior now, <span class="keyword">use</span>:</div><div class="line"></div><div class="line">  git config <span class="comment">--global push.default simple</span></div><div class="line"></div><div class="line">See <span class="attribute">'git</span> help config' <span class="keyword">and</span> search <span class="keyword">for</span> <span class="attribute">'push</span>.<span class="keyword">default</span>' <span class="keyword">for</span> further information.</div><div class="line">(the <span class="attribute">'simple</span>' mode was introduced <span class="keyword">in</span> Git <span class="number">1.7</span><span class="number">.11</span>. <span class="keyword">Use</span> the similar mode</div><div class="line"><span class="attribute">'current</span>' instead <span class="keyword">of</span> <span class="attribute">'simple</span>' <span class="keyword">if</span> you sometimes <span class="keyword">use</span> older versions <span class="keyword">of</span> Git)</div><div class="line"></div><div class="line">Everything up-<span class="keyword">to</span>-date</div></pre></td></tr></table></figure>
-
-<p>然后决定查个究竟。<br>
-      
-    </div>
-    <footer>
-      
-        
-          <div class="alignleft">
-            <a href="/2013/10/23/guan-yu-git-pushde-shi-hou-ti-shi-warning-push-dot-default-is-unsetde-wen-ti/#more" class="more-link">Read More</a>
-          </div>
-        
-        
-      
-      <div class="clearfix"></div>
-    </footer>
-  </div>
-</article>
-
-
-
-
-  <article class="post">
-  
-  <div class="post-content">
-    <header>
-      
-        <div class="icon"></div>
-        <time datetime="2013-10-22T08:00:00.000Z"><a href="/2013/10/22/gitru-he-jie-jue-chong-tu/">2013-10-22</a></time>
-      
-      
-  
-    <h1 class="title"><a href="/2013/10/22/gitru-he-jie-jue-chong-tu/">git如何解决冲突</a></h1>
-  
-
-    </header>
-    <div class="entry">
-      
-        <p>因为开发中代码管理使用的为svn，所以只有在玩github的时候才会去使用git。但是发现自己很多git命令还是不很属性，所以决定记下来方便总结。这篇文章主讲在git合并branch的时候如何解决冲突。<br>
-      
-    </div>
-    <footer>
-      
-        
-          <div class="alignleft">
-            <a href="/2013/10/22/gitru-he-jie-jue-chong-tu/#more" class="more-link">Read More</a>
-          </div>
-        
-        
-      
-      <div class="clearfix"></div>
-    </footer>
-  </div>
-</article>
-
-
-
-
 
 <nav id="pagination">
   
@@ -436,11 +437,11 @@ document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3
   <h3 class="title">分类</h3>
   <ul class="entry">
   
-    <li><a href="/categories/Swift/">Swift</a><small>4</small></li>
+    <li><a href="/categories/Swift/">Swift</a><small>5</small></li>
   
     <li><a href="/categories/git/">git</a><small>3</small></li>
   
-    <li><a href="/categories/iOS/">iOS</a><small>12</small></li>
+    <li><a href="/categories/iOS/">iOS</a><small>13</small></li>
   
     <li><a href="/categories/生活/">生活</a><small>3</small></li>
   
@@ -469,17 +470,21 @@ document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3
   
     <li><a href="/tags/NSTimer/">NSTimer</a><small>1</small></li>
   
+    <li><a href="/tags/Optional/">Optional</a><small>1</small></li>
+  
     <li><a href="/tags/Optionals/">Optionals</a><small>1</small></li>
   
-    <li><a href="/tags/Swift/">Swift</a><small>4</small></li>
+    <li><a href="/tags/Swift/">Swift</a><small>5</small></li>
   
     <li><a href="/tags/UIView-AutoLayout/">UIView AutoLayout</a><small>1</small></li>
+  
+    <li><a href="/tags/Xcode/">Xcode</a><small>1</small></li>
   
     <li><a href="/tags/function/">function</a><small>1</small></li>
   
     <li><a href="/tags/git/">git</a><small>3</small></li>
   
-    <li><a href="/tags/iOS/">iOS</a><small>1</small></li>
+    <li><a href="/tags/iOS/">iOS</a><small>2</small></li>
   
     <li><a href="/tags/iOS7/">iOS7</a><small>1</small></li>
   
